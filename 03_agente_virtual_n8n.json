@@ -1,0 +1,470 @@
+{
+  "name": "Agente Virtual Dental/Facial — WhatsApp + Instagram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["messages"],
+        "options": {}
+      },
+      "id": "whatsapp-trigger",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsappTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "whatsapp-webhook-dental"
+    },
+    {
+      "parameters": {
+        "updates": ["messages"],
+        "options": {}
+      },
+      "id": "instagram-trigger",
+      "name": "Instagram DM Trigger",
+      "type": "n8n-nodes-base.instagramTrigger",
+      "typeVersion": 1,
+      "position": [240, 480],
+      "webhookId": "instagram-webhook-dental"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-channels",
+      "name": "Unificar Canales",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalizar mensaje de cualquier canal (WhatsApp o Instagram)\nconst item = $input.first();\nconst data = item.json;\n\nlet normalized = {\n  channel: '',\n  senderId: '',\n  senderName: '',\n  messageText: '',\n  messageId: '',\n  timestamp: new Date().toISOString(),\n  rawData: data\n};\n\n// Detectar canal y extraer campos\nif (data.object === 'whatsapp_business_account' || data.entry?.[0]?.changes?.[0]?.field === 'messages') {\n  // WhatsApp\n  const entry = data.entry?.[0]?.changes?.[0]?.value;\n  const msg = entry?.messages?.[0];\n  normalized.channel = 'whatsapp';\n  normalized.senderId = msg?.from || '';\n  normalized.senderName = entry?.contacts?.[0]?.profile?.name || 'Cliente';\n  normalized.messageText = msg?.text?.body || msg?.interactive?.button_reply?.title || '';\n  normalized.messageId = msg?.id || '';\n} else if (data.object === 'instagram' || data.entry?.[0]?.messaging) {\n  // Instagram\n  const messaging = data.entry?.[0]?.messaging?.[0];\n  normalized.channel = 'instagram';\n  normalized.senderId = messaging?.sender?.id || '';\n  normalized.senderName = messaging?.sender?.name || 'Cliente Instagram';\n  normalized.messageText = messaging?.message?.text || '';\n  normalized.messageId = messaging?.message?.mid || '';\n}\n\nreturn [{ json: normalized }];"
+      },
+      "id": "normalize-message",
+      "name": "Normalizar Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sender_id",
+              "lookupValue": "={{ $json.senderId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "get-memory",
+      "name": "Obtener Memoria del Paciente",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [900, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Construir contexto del paciente desde Google Sheets\nconst msg = $('Normalizar Mensaje').first().json;\nconst memoryData = $input.first().json;\n\nlet patientContext = {\n  isNewPatient: true,\n  name: msg.senderName,\n  senderId: msg.senderId,\n  channel: msg.channel,\n  conversationHistory: [],\n  lastService: '',\n  lastAppointment: '',\n  preferences: '',\n  appointmentCount: 0\n};\n\nif (memoryData && memoryData.sender_id) {\n  patientContext.isNewPatient = false;\n  patientContext.name = memoryData.name || msg.senderName;\n  patientContext.conversationHistory = JSON.parse(memoryData.conversation_history || '[]');\n  patientContext.lastService = memoryData.last_service || '';\n  patientContext.lastAppointment = memoryData.last_appointment || '';\n  patientContext.preferences = memoryData.preferences || '';\n  patientContext.appointmentCount = parseInt(memoryData.appointment_count || '0');\n}\n\n// Agregar mensaje actual al historial\npatientContext.conversationHistory.push({\n  role: 'user',\n  content: msg.messageText,\n  timestamp: msg.timestamp\n});\n\n// Mantener solo los últimos 10 mensajes en contexto\nif (patientContext.conversationHistory.length > 10) {\n  patientContext.conversationHistory = patientContext.conversationHistory.slice(-10);\n}\n\nreturn [{ json: { ...msg, patientContext } }];"
+      },
+      "id": "build-context",
+      "name": "Construir Contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Eres Sofia, la asistente virtual de [NOMBRE_CLINICA]. Eres profesional, cálida y eficiente. Tu objetivo es ayudar a los pacientes a agendar citas, resolver dudas sobre tratamientos y brindar una experiencia excepcional.\n\nINFORMACIÓN DE LA CLÍNICA:\n- Nombre: [NOMBRE_CLINICA]\n- Dirección: [DIRECCION]\n- Teléfono: [TELEFONO]\n- Horarios: Lunes a Viernes 9am-7pm, Sábado 9am-3pm\n- Servicios: [LISTA_SERVICIOS]\n- Precios aproximados: [LISTA_PRECIOS]\n\nREGLAS DE COMPORTAMIENTO:\n1. Saluda al paciente por su nombre si lo conoces\n2. Si es paciente nuevo: presentate brevemente y pregunta en qué puedes ayudar\n3. Si es paciente recurrente: menciona que recuerdas su última visita\n4. Usa un tono formal pero amigable — ni muy rígido ni muy informal\n5. Nunca des diagnósticos médicos — siempre refiere a consulta\n6. Para agendar cita: necesitas nombre completo, servicio deseado, fecha preferida, teléfono\n7. Cuando tengas todos los datos para agendar, di exactamente: AGENDAR_CITA:[nombre]|[servicio]|[fecha_hora]|[telefono]\n8. Si alguien pregunta por precios, da rangos generales y ofrece cotización exacta en consulta\n9. Para urgencias dentales: da prioridad y ofrece cita el mismo día si es posible\n10. Al final de cada conversación de cita exitosa, pide amablemente que dejen reseña en Google\n11. Máximo 3 oraciones por respuesta — sé conciso\n\nCONTEXTO DEL PACIENTE:\n- Es paciente nuevo: {{ $json.patientContext.isNewPatient }}\n- Nombre: {{ $json.patientContext.name }}\n- Último servicio: {{ $json.patientContext.lastService }}\n- Última cita: {{ $json.patientContext.lastAppointment }}\n- Número de visitas previas: {{ $json.patientContext.appointmentCount }}\n- Canal de contacto: {{ $json.channel }}"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.patientContext.conversationHistory.map(m => m.role + ': ' + m.content).join('\\n') }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 300
+        }
+      },
+      "id": "ai-agent",
+      "name": "Sofia — Agente IA",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [1340, 380],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "AGENDAR_CITA:",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agendar"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "route-intent",
+      "name": "¿Hay que agendar?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1560, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parsear datos de cita desde el marcador AGENDAR_CITA\nconst aiResponse = $json.message.content;\nconst marker = 'AGENDAR_CITA:';\nconst markerIndex = aiResponse.indexOf(marker);\n\nif (markerIndex === -1) {\n  return [{ json: { ...($json), parseError: true } }];\n}\n\nconst appointmentData = aiResponse.substring(markerIndex + marker.length);\nconst parts = appointmentData.split('|');\n\nconst [patientName, service, dateTimeStr, phone] = parts.map(p => p.trim());\n\n// Parsear fecha (formato esperado: DD/MM/YYYY HH:mm o descripción natural)\nlet startDateTime, endDateTime;\ntry {\n  if (dateTimeStr.match(/\\d{2}\\/\\d{2}\\/\\d{4}/)) {\n    const [datePart, timePart] = dateTimeStr.split(' ');\n    const [day, month, year] = datePart.split('/');\n    const [hour, minute] = (timePart || '10:00').split(':');\n    startDateTime = new Date(year, month - 1, day, hour, minute);\n  } else {\n    // Default: mañana a las 10am\n    startDateTime = new Date();\n    startDateTime.setDate(startDateTime.getDate() + 1);\n    startDateTime.setHours(10, 0, 0, 0);\n  }\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // +1 hora\n} catch(e) {\n  startDateTime = new Date();\n  startDateTime.setDate(startDateTime.getDate() + 1);\n  startDateTime.setHours(10, 0, 0, 0);\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);\n}\n\n// Limpiar el mensaje de IA removiendo el marcador\nconst cleanMessage = aiResponse.substring(0, markerIndex).trim();\n\nreturn [{\n  json: {\n    ...($json),\n    appointmentData: {\n      patientName,\n      service,\n      phone,\n      startDateTime: startDateTime.toISOString(),\n      endDateTime: endDateTime.toISOString(),\n      startDateTimeFormatted: startDateTime.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }),\n      summary: `Cita — ${service} — ${patientName}`,\n      description: `Paciente: ${patientName}\\nServicio: ${service}\\nTeléfono: ${phone}\\nCanal: ${$('Normalizar Mensaje').first().json.channel}\\nAgendado vía: Agente Virtual Sofia`\n    },\n    cleanMessage\n  }\n}];"
+      },
+      "id": "parse-appointment",
+      "name": "Parsear Datos de Cita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 260]
+    },
+    {
+      "parameters": {
+        "calendarId": "primary",
+        "start": "={{ $json.appointmentData.startDateTime }}",
+        "end": "={{ $json.appointmentData.endDateTime }}",
+        "additionalFields": {
+          "summary": "={{ $json.appointmentData.summary }}",
+          "description": "={{ $json.appointmentData.description }}",
+          "location": "[DIRECCION_CLINICA]",
+          "sendUpdates": "all",
+          "attendees": []
+        }
+      },
+      "id": "create-calendar-event",
+      "name": "Crear Cita en Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [2000, 260],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Preparar datos para guardar en Google Sheets\nconst msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto').first().json.patientContext;\nconst aiResponse = $('Sofia — Agente IA').first().json.message.content;\nconst appointment = $('Parsear Datos de Cita').first()?.json?.appointmentData;\n\n// Actualizar historial\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiResponse,\n  timestamp: new Date().toISOString()\n}].slice(-10);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  name: context.name,\n  channel: msg.channel,\n  phone: msg.senderId,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  last_service: appointment?.service || context.lastService,\n  last_appointment: appointment?.startDateTimeFormatted || context.lastAppointment,\n  appointment_count: context.appointmentCount + (appointment ? 1 : 0),\n  preferences: context.preferences,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, isNewPatient: context.isNewPatient, msg, appointment } }];"
+      },
+      "id": "prepare-memory-update",
+      "name": "Preparar Actualización de Memoria",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 380]
+    },
+    {
+      "parameters": {
+        "operation": "={{ $json.isNewPatient ? 'append' : 'update' }}",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sender_id": "={{ $json.rowData.sender_id }}",
+            "name": "={{ $json.rowData.name }}",
+            "channel": "={{ $json.rowData.channel }}",
+            "phone": "={{ $json.rowData.phone }}",
+            "conversation_history": "={{ $json.rowData.conversation_history }}",
+            "last_message": "={{ $json.rowData.last_message }}",
+            "last_message_date": "={{ $json.rowData.last_message_date }}",
+            "last_service": "={{ $json.rowData.last_service }}",
+            "last_appointment": "={{ $json.rowData.last_appointment }}",
+            "appointment_count": "={{ $json.rowData.appointment_count }}",
+            "preferences": "={{ $json.rowData.preferences }}",
+            "updated_at": "={{ $json.rowData.updated_at }}"
+          }
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sender_id",
+              "lookupValue": "={{ $json.rowData.sender_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "save-memory",
+      "name": "Guardar Memoria en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2440, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Preparar mensaje de confirmación de cita\nconst ctx = $('Preparar Actualización de Memoria').first().json;\nconst appointment = ctx.appointment;\nconst channel = ctx.msg.channel;\n\nlet confirmationMessage = '';\n\nif (appointment) {\n  confirmationMessage = `✅ ¡Tu cita está confirmada!\n\n📅 *${appointment.startDateTimeFormatted}*\n🦷 Servicio: ${appointment.service}\n📍 [DIRECCION_CLINICA]\n\nRecibirás un recordatorio 24 horas antes. Si necesitas cambiar tu cita, solo escríbeme aquí. ¡Hasta pronto! 😊`;\n} else {\n  // Respuesta normal sin cita\n  const aiResponse = $('Sofia — Agente IA').first().json.message.content;\n  confirmationMessage = aiResponse.replace(/AGENDAR_CITA:[^\\n]*/g, '').trim();\n}\n\nreturn [{ json: { message: confirmationMessage, channel, senderId: ctx.msg.senderId } }];"
+      },
+      "id": "prepare-response",
+      "name": "Preparar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2660, 380]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "whatsapp",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "whatsapp"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "instagram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "instagram"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-response",
+      "name": "Rutear Respuesta por Canal",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2880, 380]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_NUMBER_ID",
+        "to": "={{ $json.senderId }}",
+        "messageType": "text",
+        "textBody": "={{ $json.message }}"
+      },
+      "id": "send-whatsapp",
+      "name": "Enviar por WhatsApp",
+      "type": "n8n-nodes-base.whatsapp",
+      "typeVersion": 1,
+      "position": [3100, 260],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "YOUR_WHATSAPP_CREDENTIAL_ID",
+          "name": "WhatsApp Business Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "reply",
+        "recipientId": "={{ $json.senderId }}",
+        "message": "={{ $json.message }}"
+      },
+      "id": "send-instagram",
+      "name": "Enviar por Instagram DM",
+      "type": "n8n-nodes-base.instagram",
+      "typeVersion": 1,
+      "position": [3100, 480],
+      "credentials": {
+        "instagramApi": {
+          "id": "YOUR_INSTAGRAM_CREDENTIAL_ID",
+          "name": "Instagram Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Citas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha_agendamiento": "={{ new Date().toISOString() }}",
+            "paciente": "={{ $('Parsear Datos de Cita').first().json.appointmentData.patientName }}",
+            "servicio": "={{ $('Parsear Datos de Cita').first().json.appointmentData.service }}",
+            "fecha_cita": "={{ $('Parsear Datos de Cita').first().json.appointmentData.startDateTimeFormatted }}",
+            "telefono": "={{ $('Parsear Datos de Cita').first().json.appointmentData.phone }}",
+            "canal": "={{ $('Normalizar Mensaje').first().json.channel }}",
+            "calendar_event_id": "={{ $('Crear Cita en Google Calendar').first().json.id }}",
+            "estado": "Confirmada",
+            "recordatorio_enviado": "No"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-appointment",
+      "name": "Registrar Cita en Hoja Citas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2000, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [[{ "node": "Unificar Canales", "type": "main", "index": 0 }]]
+    },
+    "Instagram DM Trigger": {
+      "main": [[{ "node": "Unificar Canales", "type": "main", "index": 1 }]]
+    },
+    "Unificar Canales": {
+      "main": [[{ "node": "Normalizar Mensaje", "type": "main", "index": 0 }]]
+    },
+    "Normalizar Mensaje": {
+      "main": [[{ "node": "Obtener Memoria del Paciente", "type": "main", "index": 0 }]]
+    },
+    "Obtener Memoria del Paciente": {
+      "main": [[{ "node": "Construir Contexto", "type": "main", "index": 0 }]]
+    },
+    "Construir Contexto": {
+      "main": [[{ "node": "Sofia — Agente IA", "type": "main", "index": 0 }]]
+    },
+    "Sofia — Agente IA": {
+      "main": [[{ "node": "¿Hay que agendar?", "type": "main", "index": 0 }]]
+    },
+    "¿Hay que agendar?": {
+      "main": [
+        [{ "node": "Parsear Datos de Cita", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualización de Memoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parsear Datos de Cita": {
+      "main": [
+        [{ "node": "Crear Cita en Google Calendar", "type": "main", "index": 0 }]
+      ]
+    },
+    "Crear Cita en Google Calendar": {
+      "main": [
+        [{ "node": "Registrar Cita en Hoja Citas", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualización de Memoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "Registrar Cita en Hoja Citas": {
+      "main": [[{ "node": "Preparar Actualización de Memoria", "type": "main", "index": 0 }]]
+    },
+    "Preparar Actualización de Memoria": {
+      "main": [[{ "node": "Guardar Memoria en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Guardar Memoria en Sheets": {
+      "main": [[{ "node": "Preparar Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Preparar Respuesta": {
+      "main": [[{ "node": "Rutear Respuesta por Canal", "type": "main", "index": 0 }]]
+    },
+    "Rutear Respuesta por Canal": {
+      "main": [
+        [{ "node": "Enviar por WhatsApp", "type": "main", "index": 0 }],
+        [{ "node": "Enviar por Instagram DM", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["dental", "whatsapp", "instagram", "agente-virtual", "guadalajara"]
+}

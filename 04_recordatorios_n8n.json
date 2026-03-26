@@ -1,0 +1,155 @@
+{
+  "name": "Recordatorios de Cita + Solicitud de Reseña",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 60 }]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Revisar cada hora",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Citas",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "estado",
+              "lookupValue": "Confirmada"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-upcoming-appointments",
+      "name": "Obtener Citas Confirmadas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [460, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtrar citas que necesitan recordatorio\nconst now = new Date();\nconst appointments = $input.all();\nconst needsReminder = [];\n\nfor (const item of appointments) {\n  const apt = item.json;\n  const appointmentDate = new Date(apt.fecha_cita);\n  const hoursUntil = (appointmentDate - now) / (1000 * 60 * 60);\n  \n  // Recordatorio 24 horas antes\n  if (hoursUntil >= 23 && hoursUntil <= 25 && apt.recordatorio_enviado !== '24h') {\n    needsReminder.push({ ...apt, reminderType: '24h', hoursUntil: Math.round(hoursUntil) });\n  }\n  \n  // Recordatorio 2 horas antes\n  if (hoursUntil >= 1.5 && hoursUntil <= 2.5 && apt.recordatorio_enviado !== '2h') {\n    needsReminder.push({ ...apt, reminderType: '2h', hoursUntil: Math.round(hoursUntil) });\n  }\n  \n  // Solicitud de reseña 2 horas DESPUÉS de la cita\n  if (hoursUntil >= -3 && hoursUntil <= -1 && apt.recordatorio_enviado !== 'review') {\n    needsReminder.push({ ...apt, reminderType: 'review', hoursUntil: Math.round(hoursUntil) });\n  }\n}\n\nreturn needsReminder.map(r => ({ json: r }));"
+      },
+      "id": "filter-reminders",
+      "name": "Filtrar Citas para Recordatorio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generar mensaje de recordatorio según tipo\nconst apt = $json;\nlet message = '';\n\nif (apt.reminderType === '24h') {\n  message = `Hola ${apt.paciente} 👋\\n\\nTe recordamos que mañana tienes tu cita en *[NOMBRE_CLINICA]*:\\n\\n📅 *${apt.fecha_cita}*\\n🦷 Servicio: ${apt.servicio}\\n📍 [DIRECCION_CLINICA]\\n\\nSi necesitas cambiar o cancelar, responde este mensaje. ¡Hasta mañana! 😊`;\n} else if (apt.reminderType === '2h') {\n  message = `Hola ${apt.paciente} ⏰\\n\\n¡Tu cita es en aproximadamente 2 horas!\\n\\n📅 *${apt.fecha_cita}*\\n📍 [DIRECCION_CLINICA]\\n\\nTe esperamos. Si tienes alguna pregunta de último momento, aquí estoy. ¡Nos vemos pronto! 🙂`;\n} else if (apt.reminderType === 'review') {\n  message = `Hola ${apt.paciente} 😊\\n\\nEsperamos que tu cita de hoy haya sido excelente. Nos encantaría saber cómo te sentiste.\\n\\n¿Podrías dejarnos una reseña rápida en Google? Solo toma 1 minuto y nos ayuda mucho:\\n👉 [LINK_GOOGLE_REVIEWS]\\n\\n¡Muchas gracias y hasta pronto! 🙏`;\n}\n\nreturn [{ json: { ...apt, reminderMessage: message } }];"
+      },
+      "id": "build-reminder-message",
+      "name": "Construir Mensaje de Recordatorio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_NUMBER_ID",
+        "to": "={{ $json.telefono }}",
+        "messageType": "text",
+        "textBody": "={{ $json.reminderMessage }}"
+      },
+      "id": "send-reminder-whatsapp",
+      "name": "Enviar Recordatorio WhatsApp",
+      "type": "n8n-nodes-base.whatsapp",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "YOUR_WHATSAPP_CREDENTIAL_ID",
+          "name": "WhatsApp Business Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Citas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "recordatorio_enviado": "={{ $json.reminderType }}"
+          }
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "calendar_event_id",
+              "lookupValue": "={{ $json.calendar_event_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "mark-reminder-sent",
+      "name": "Marcar Recordatorio Enviado",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1340, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Revisar cada hora": {
+      "main": [[{ "node": "Obtener Citas Confirmadas", "type": "main", "index": 0 }]]
+    },
+    "Obtener Citas Confirmadas": {
+      "main": [[{ "node": "Filtrar Citas para Recordatorio", "type": "main", "index": 0 }]]
+    },
+    "Filtrar Citas para Recordatorio": {
+      "main": [[{ "node": "Construir Mensaje de Recordatorio", "type": "main", "index": 0 }]]
+    },
+    "Construir Mensaje de Recordatorio": {
+      "main": [[{ "node": "Enviar Recordatorio WhatsApp", "type": "main", "index": 0 }]]
+    },
+    "Enviar Recordatorio WhatsApp": {
+      "main": [[{ "node": "Marcar Recordatorio Enviado", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["recordatorios", "dental", "whatsapp"]
+}
