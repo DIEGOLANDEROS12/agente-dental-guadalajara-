@@ -5,7 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "agente-dental",
-        "responseMode": "lastNode",
+        "responseMode": "responseNode",
         "options": {}
       },
       "id": "webhook-trigger",
@@ -30,8 +30,8 @@
         "operation": "getRows",
         "documentId": {
           "__rl": true,
-          "value": "10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA",
-          "mode": "id"
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
         },
         "sheetName": {
           "__rl": true,
@@ -57,7 +57,7 @@
       "position": [680, 380],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "id": "PONER_TU_CREDENTIAL_ID",
           "name": "Google Sheets account"
         }
       }
@@ -79,7 +79,7 @@
           "values": [
             {
               "role": "system",
-              "content": "Eres Sofia, la asistente virtual de ProClinic Dental Guadalajara. Eres profesional, cálida y eficiente. Tu objetivo es ayudar a los pacientes a agendar citas, resolver dudas sobre tratamientos y brindar una experiencia excepcional.\n\nINFORMACIÓN DE LA CLÍNICA:\n- Nombre: ProClinic Dental\n- Dirección: Av. Paseo de la Arboleda #742, Jardines del Bosque, Guadalajara, Jalisco\n- Teléfono: +52 33 3121 1813\n- Horarios: Lunes a Viernes 9am-7pm, Sábado 9am-2pm\n- Servicios: Implantes dentales, Ortodoncia, Endodoncia, Prótesis, Estética dental, Limpiezas, Urgencias\n- Precios: Limpieza desde $600 MXN, Ortodoncia desde $18,000 MXN, Implante desde $12,000 MXN\n- Sitio web: proclinicdental.com\n\nREGLAS DE COMPORTAMIENTO:\n1. Saluda al paciente por su nombre si lo conoces\n2. Si es paciente nuevo: preséntate brevemente y pregunta en qué puedes ayudar\n3. Si es paciente recurrente: menciona que recuerdas su última visita\n4. Usa un tono formal pero amigable — ni muy rígido ni muy informal\n5. Nunca des diagnósticos médicos — siempre refiere a consulta presencial\n6. Para agendar cita necesitas: nombre completo, servicio deseado, fecha preferida, teléfono\n7. Cuando tengas TODOS los datos escribe exactamente: AGENDAR_CITA:[nombre]|[servicio]|[fecha DD/MM/YYYY HH:mm]|[telefono]\n8. Si preguntan por precios da rangos generales y ofrece cotización exacta en consulta\n9. Para urgencias dentales: da prioridad máxima y ofrece cita el mismo día\n10. Al finalizar una cita exitosa pide amablemente una reseña en Google\n11. Máximo 3 oraciones por respuesta — sé conciso y directo\n12. Usa emojis con moderación para parecer más cercano\n\nCONTEXTO DEL PACIENTE:\n- Es paciente nuevo: {{ $json.patientContext.isNewPatient }}\n- Nombre: {{ $json.patientContext.name }}\n- Último servicio: {{ $json.patientContext.lastService }}\n- Última cita: {{ $json.patientContext.lastAppointment }}\n- Visitas previas: {{ $json.patientContext.appointmentCount }}\n- Canal: {{ $json.channel }}"
+              "content": "Eres Sofia, la asistente virtual de ProClinic Dental Guadalajara. Eres profesional, cálida y eficiente. Tu objetivo es ayudar a los pacientes a agendar citas, resolver dudas sobre tratamientos y brindar una experiencia excepcional.\n\nINFORMACIÓN DE LA CLÍNICA:\n- Nombre: ProClinic Dental\n- Dirección: Av. Paseo de la Arboleda #742, Jardines del Bosque, Guadalajara, Jalisco\n- Teléfono: +52 33 3121 1813\n- Horarios: Lunes a Viernes 9am-7pm, Sábado 9am-2pm\n- Servicios: Implantes dentales, Ortodoncia, Endodoncia, Prótesis, Estética dental, Limpiezas, Urgencias\n- Precios: Limpieza desde $600 MXN, Ortodoncia desde $18,000 MXN, Implante desde $12,000 MXN\n- Sitio web: proclinicdental.com\n\nREGLAS DE COMPORTAMIENTO:\n1. Saluda al paciente por su nombre si lo conoces\n2. Si es paciente nuevo: preséntate brevemente y pregunta en qué puedes ayudar\n3. Si es paciente recurrente: menciona que recuerdas su última visita\n4. Usa un tono formal pero amigable\n5. Nunca des diagnósticos médicos, siempre refiere a consulta presencial\n6. Para agendar cita necesitas: nombre completo, servicio deseado, fecha preferida, teléfono\n7. Cuando tengas TODOS los datos escribe exactamente: AGENDAR_CITA:[nombre]|[servicio]|[fecha DD/MM/YYYY HH:mm]|[telefono]\n8. Si preguntan por precios da rangos generales y ofrece cotización exacta en consulta\n9. Para urgencias dentales da prioridad máxima y ofrece cita el mismo día\n10. Al finalizar una cita exitosa pide amablemente una reseña en Google\n11. Máximo 3 oraciones por respuesta, sé conciso y directo\n12. Usa emojis con moderación\n\nCONTEXTO DEL PACIENTE:\n- Es paciente nuevo: {{ $json.patientContext.isNewPatient }}\n- Nombre: {{ $json.patientContext.name }}\n- Último servicio: {{ $json.patientContext.lastService }}\n- Última cita: {{ $json.patientContext.lastAppointment }}\n- Visitas previas: {{ $json.patientContext.appointmentCount }}\n- Canal: {{ $json.channel }}"
             },
             {
               "role": "user",
@@ -99,7 +99,7 @@
       "position": [1120, 380],
       "credentials": {
         "openAiApi": {
-          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "id": "PONER_TU_CREDENTIAL_ID",
           "name": "OpenAI account"
         }
       }
@@ -165,7 +165,7 @@
       "position": [1780, 260],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "YOUR_GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "id": "PONER_TU_CREDENTIAL_ID",
           "name": "Google Calendar account"
         }
       }
@@ -175,8 +175,8 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA",
-          "mode": "id"
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
         },
         "sheetName": {
           "__rl": true,
@@ -184,8 +184,18 @@
           "mode": "name"
         },
         "columns": {
-          "mappingMode": "autoMapInputData",
-          "value": {}
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha_agendamiento": "={{ new Date().toISOString() }}",
+            "paciente": "={{ $json.appointmentData.patientName }}",
+            "servicio": "={{ $json.appointmentData.service }}",
+            "fecha_cita": "={{ $json.appointmentData.startDateTimeFormatted }}",
+            "telefono": "={{ $json.appointmentData.phone }}",
+            "canal": "={{ $('Normalizar Mensaje').first().json.channel }}",
+            "calendar_event_id": "={{ $('Crear Cita en Google Calendar').first().json.id }}",
+            "estado": "Confirmada",
+            "recordatorio_enviado": "No"
+          }
         },
         "options": {}
       },
@@ -196,14 +206,14 @@
       "position": [2000, 160],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "id": "PONER_TU_CREDENTIAL_ID",
           "name": "Google Sheets account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto').first().json.patientContext;\nconst aiResponse = $('Sofia — Agente IA').first().json.message.content;\n\nlet appointment = null;\ntry {\n  appointment = $('Parsear Datos de Cita').first()?.json?.appointmentData;\n} catch(e) {}\n\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiResponse,\n  timestamp: new Date().toISOString()\n}].slice(-10);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  name: context.name,\n  channel: msg.channel,\n  phone: msg.senderId,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  last_service: appointment?.service || context.lastService,\n  last_appointment: appointment?.startDateTimeFormatted || context.lastAppointment,\n  appointment_count: context.appointmentCount + (appointment ? 1 : 0),\n  preferences: context.preferences,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, isNewPatient: context.isNewPatient, msg, appointment } }];"
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto').first().json.patientContext;\nconst aiResponse = $('Sofia — Agente IA').first().json.message.content;\n\nlet appointment = null;\ntry { appointment = $('Parsear Datos de Cita').first()?.json?.appointmentData; } catch(e) {}\n\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiResponse,\n  timestamp: new Date().toISOString()\n}].slice(-10);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  name: context.name,\n  channel: msg.channel,\n  phone: msg.senderId,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  last_service: appointment?.service || context.lastService,\n  last_appointment: appointment?.startDateTimeFormatted || context.lastAppointment,\n  appointment_count: context.appointmentCount + (appointment ? 1 : 0),\n  preferences: context.preferences,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, isNewPatient: context.isNewPatient, msg, appointment } }];"
       },
       "id": "prepare-memory-update",
       "name": "Preparar Actualizacion de Memoria",
@@ -216,8 +226,8 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA",
-          "mode": "id"
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
         },
         "sheetName": {
           "__rl": true,
@@ -252,14 +262,14 @@
       "position": [2220, 400],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "id": "PONER_TU_CREDENTIAL_ID",
           "name": "Google Sheets account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const ctx = $('Preparar Actualizacion de Memoria').first().json;\nconst appointment = ctx.appointment;\nconst channel = ctx.msg.channel;\nconst senderId = ctx.msg.senderId;\n\nlet responseMessage = '';\n\nif (appointment) {\n  responseMessage = `✅ ¡Tu cita está confirmada, ${ctx.msg.senderName}!\\n\\n📅 ${appointment.startDateTimeFormatted}\\n🦷 Servicio: ${appointment.service}\\n📍 Av. Paseo de la Arboleda #742, Jardines del Bosque\\n\\nRecibirás un recordatorio 24 horas antes. Si necesitas cambiar tu cita, solo escríbeme. ¡Hasta pronto! 😊`;\n} else {\n  const aiResponse = $('Sofia — Agente IA').first().json.message.content;\n  responseMessage = aiResponse.replace(/AGENDAR_CITA:[^\\n]*/g, '').trim();\n}\n\nreturn [{ json: { message: responseMessage, channel, senderId } }];"
+        "jsCode": "const ctx = $('Preparar Actualizacion de Memoria').first().json;\nconst appointment = ctx.appointment;\nconst senderId = ctx.msg.senderId;\nconst senderName = ctx.msg.senderName;\n\nlet responseMessage = '';\n\nif (appointment) {\n  responseMessage = `✅ ¡Tu cita está confirmada, ${senderName}!\\n\\n📅 ${appointment.startDateTimeFormatted}\\n🦷 Servicio: ${appointment.service}\\n📍 Av. Paseo de la Arboleda #742, Jardines del Bosque, Guadalajara\\n\\nRecibirás un recordatorio 24 horas antes. Si necesitas cambiar tu cita, solo escríbeme aquí. ¡Hasta pronto! 😊`;\n} else {\n  const aiResponse = $('Sofia — Agente IA').first().json.message.content;\n  responseMessage = aiResponse.replace(/AGENDAR_CITA:[^\\n]*/g, '').trim();\n}\n\nreturn [{ json: { message: responseMessage, senderId } }];"
       },
       "id": "prepare-response",
       "name": "Preparar Respuesta",
@@ -270,7 +280,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ status: 'ok', reply: $json.message }) }}",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', reply: $json.message, senderId: $json.senderId }) }}",
         "options": {
           "responseHeaders": {
             "entries": [
