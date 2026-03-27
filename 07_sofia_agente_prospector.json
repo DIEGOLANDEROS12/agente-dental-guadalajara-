@@ -1,0 +1,352 @@
+{
+  "name": "Sofia — Agente Prospectora IA (Inbound Replies)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sofia-prospector",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 380],
+      "webhookId": "sofia-prospector"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst data = item.json.body || item.json;\n\nlet normalized = {\n  channel: 'whatsapp',\n  senderId: '',\n  senderName: '',\n  messageText: '',\n  messageId: '',\n  timestamp: new Date().toISOString()\n};\n\n// ── TWILIO WhatsApp ──\n// Twilio envía form-encoded: From, Body, ProfileName, MessageSid\nif (data.From && data.From.includes('whatsapp:')) {\n  normalized.channel = 'whatsapp';\n  normalized.senderId = data.From.replace('whatsapp:', '');\n  normalized.senderName = data.ProfileName || 'Prospecto';\n  normalized.messageText = data.Body || '';\n  normalized.messageId = data.MessageSid || '';\n\n// ── META WhatsApp Business API ──\n} else if (data.object === 'whatsapp_business_account' || data.entry?.[0]?.changes?.[0]?.field === 'messages') {\n  const entry = data.entry?.[0]?.changes?.[0]?.value;\n  const msg = entry?.messages?.[0];\n  // Ignorar eventos de estado (delivered, read, sent)\n  if (!msg || msg.type === 'status') return [];\n  normalized.channel = 'whatsapp';\n  normalized.senderId = msg?.from || '';\n  normalized.senderName = entry?.contacts?.[0]?.profile?.name || 'Prospecto';\n  normalized.messageText = msg?.text?.body || msg?.interactive?.button_reply?.title || '';\n  normalized.messageId = msg?.id || '';\n\n// ── DATOS DE PRUEBA DIRECTOS ──\n} else if (data.senderId || data.messageText) {\n  normalized = { ...normalized, ...data };\n}\n\n// Si no hay texto útil no procesamos (evita loops por status updates)\nif (!normalized.messageText.trim()) return [];\n\nreturn [{ json: normalized }];"
+      },
+      "id": "normalize-message",
+      "name": "Normalizar Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_URL_DE_TU_GOOGLE_SHEET",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospectos",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sender_id",
+              "lookupValue": "={{ $json.senderId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "get-prospect",
+      "name": "Obtener Prospecto",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [680, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst sheetData = $input.first().json;\n\n// Construir contexto del prospecto con valores defensivos\nlet prospectContext = {\n  isNewProspect: true,\n  senderId: msg.senderId,\n  senderName: msg.senderName,\n  businessName: 'tu clínica',\n  contactName: msg.senderName,\n  phone: msg.senderId,\n  conversationStage: 'esperando_respuesta_inicial',\n  conversationHistory: [],\n  openingUsed: 'A',\n  demoDate: '',\n  notes: ''\n};\n\n// Si existe en la base de datos, cargar datos\nif (sheetData && sheetData.sender_id) {\n  prospectContext.isNewProspect = false;\n  prospectContext.businessName = sheetData.business_name || prospectContext.businessName;\n  prospectContext.contactName = sheetData.contact_name || msg.senderName;\n  prospectContext.conversationStage = sheetData.conversation_stage || 'esperando_respuesta_inicial';\n  prospectContext.openingUsed = sheetData.opening_used || 'A';\n  prospectContext.demoDate = sheetData.demo_date || '';\n  prospectContext.notes = sheetData.notes || '';\n\n  // Cargar historial de conversación (JSON guardado en Sheets)\n  try {\n    prospectContext.conversationHistory = JSON.parse(sheetData.conversation_history || '[]');\n  } catch(e) {\n    prospectContext.conversationHistory = [];\n  }\n}\n\n// Agregar el mensaje actual al historial\nprospectContext.conversationHistory.push({\n  role: 'user',\n  content: msg.messageText,\n  timestamp: msg.timestamp\n});\n\n// Mantener solo los últimos 12 mensajes para no sobrecargar el contexto\nif (prospectContext.conversationHistory.length > 12) {\n  prospectContext.conversationHistory = prospectContext.conversationHistory.slice(-12);\n}\n\nreturn [{ json: { ...msg, prospectContext } }];"
+      },
+      "id": "build-prospect-context",
+      "name": "Construir Contexto Prospecto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Eres Sofía, una asistente virtual que trabaja para una agencia de IA. Tu misión es generar curiosidad en clínicas dentales, establecer relación y llevarlas a agendar una demo personalizada con el dueño de la agencia. NO reveles el nombre de la empresa hasta que te lo pregunten directamente.\n\nTONO: Casual, cercano, natural. Como WhatsApp entre personas reales. No robótico, no genérico.\n\n━━━ CONTEXTO DEL PROSPECTO ━━━\n- Negocio: {{ $json.prospectContext.businessName }}\n- Nombre del contacto: {{ $json.prospectContext.contactName }}\n- Etapa actual: {{ $json.prospectContext.conversationStage }}\n- Apertura usada: {{ $json.prospectContext.openingUsed }}\n- Demo agendada para: {{ $json.prospectContext.demoDate }}\n\n━━━ QUÉ HACER SEGÚN LA ETAPA ━━━\n\n**ETAPA: esperando_respuesta_inicial**\nEl prospecto acaba de responder tu primer saludo. Responde con interés a lo que dijeron, luego presenta la propuesta de valor:\n→ \"Te cuento, ayudamos a clínicas como la tuya a automatizar las citas y mejorar la comunicación con los pacientes. Es una solución flexible y creo que podría ahorrarte muchos dolores de cabeza.\"\nLuego pregunta: \"¿Han tenido algún problema con las citas o la comunicación con sus clientes recientemente?\"\n\n**ETAPA: en_conversacion**\nEl prospecto está en diálogo activo. Si muestran dolor o interés:\n→ \"Justo para eso es la solución. Podría agendarte una demo breve, directamente con el dueño, quien te muestra todo a detalle. Es un espacio muy personalizado. ¿Te gustaría agendarlo?\"\nSi no muestran interés claro aún, haz una pregunta curiosa:\n→ \"¿Te gustaría saber cómo otras clínicas han mejorado sus citas con esta estrategia?\"\n\n**ETAPA: propuesta_hecha**\nYa propusiste la demo. Si el prospecto duda o pregunta cuánto dura:\n→ \"Es una demo rápida, unos 20 minutos. Dame un momento, voy a revisar la agenda del dueño... ✅ Ya revisé, tenemos un espacio disponible a las 4 p.m. ¿Te queda bien o prefieres otro horario?\"\n\n**ETAPA: horario_propuesto**\nEstás acordando horario. Cuando el prospecto confirme un horario y tengas todos los datos (nombre, negocio, fecha+hora, teléfono), escribe PRIMERO el marcador de acción:\nDEMO_AGENDADA:[nombre completo]|[nombre del negocio]|[DD/MM/YYYY HH:mm]|[telefono]\nLuego escribe el mensaje de confirmación natural para el prospecto:\n→ \"Perfecto, ya quedó agendado ✅ Te envío la invitación de Zoom y cualquier cosa, aquí estoy.\"\n\nSi propone otro horario: \"No hay problema, dime qué día y hora te va mejor y lo ajustamos.\"\n\n**ETAPA: demo_confirmada**\nLa demo ya está agendada. Solo confirma amablemente y ofrece ayuda:\n→ \"Cualquier duda o cambio de horario, aquí me dices. Estoy segura de que te va a gustar la demo.\"\n\n**ETAPA: no_interesado**\nEl prospecto no tiene interés. Cierra amablemente y deja la puerta abierta:\n→ \"Sin problema, entiendo. Si en algún momento lo consideran, con gusto los ayudo. ¡Que les vaya muy bien! 😊\"\n\n━━━ DATOS PARA AGENDAR DEMO ━━━\nNecesitas obtener (sin repetir lo que ya tienes):\n1. Nombre completo del contacto\n2. Nombre del negocio\n3. Fecha y hora deseada\n4. Número de teléfono\n\n━━━ REGLAS ━━━\n- Máximo 3-4 oraciones por respuesta\n- Si preguntan por el nombre de la empresa: \"Somos una agencia especializada en automatización con IA para negocios de salud\"\n- NUNCA uses frases genéricas de chatbot como \"¡Claro que sí!\" o \"¡Perfecto! ¿En qué puedo ayudarte?\"\n- NO hagas dos preguntas en el mismo mensaje\n- SIEMPRE termina con una pregunta o call-to-action claro\n- Para el marcador DEMO_AGENDADA: escríbelo en una línea separada, ANTES del mensaje de confirmación\n- Al final de tu respuesta, en una línea nueva, escribe obligatoriamente: ETAPA_ACTUALIZADA:[etapa]\n  Opciones válidas: en_conversacion | propuesta_hecha | horario_propuesto | demo_confirmada | no_interesado\n  (Si la etapa no cambia, repite la etapa actual)"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.prospectContext.conversationHistory.map(m => m.role + ': ' + m.content).join('\\n') }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.75,
+          "maxTokens": 400
+        }
+      },
+      "id": "sofia-ai",
+      "name": "Sofia — Agente IA",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [1120, 380],
+      "credentials": {
+        "openAiApi": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "DEMO_AGENDADA:",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agendar_demo"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "detect-action",
+      "name": "¿Agendar Demo?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $json.message.content;\nconst marker = 'DEMO_AGENDADA:';\nconst markerIndex = aiResponse.indexOf(marker);\n\nif (markerIndex === -1) {\n  return [{ json: { ...($json), parseError: true } }];\n}\n\n// Extraer la línea del marcador\nconst afterMarker = aiResponse.substring(markerIndex + marker.length);\nconst lineEnd = afterMarker.indexOf('\\n');\nconst demoLine = lineEnd !== -1 ? afterMarker.substring(0, lineEnd) : afterMarker;\n\nconst parts = demoLine.split('|').map(p => p.trim());\nconst [contactName, businessName, dateTimeStr, phone] = parts;\n\n// Parsear fecha DD/MM/YYYY HH:mm\nlet startDateTime, endDateTime;\ntry {\n  if (dateTimeStr && dateTimeStr.match(/\\d{2}\\/\\d{2}\\/\\d{4}/)) {\n    const [datePart, timePart] = dateTimeStr.split(' ');\n    const [day, month, year] = datePart.split('/');\n    const [hour, minute] = (timePart || '16:00').split(':');\n    startDateTime = new Date(\n      parseInt(year), parseInt(month) - 1, parseInt(day),\n      parseInt(hour), parseInt(minute || '0')\n    );\n  } else {\n    // Fallback: mañana a las 4pm\n    startDateTime = new Date();\n    startDateTime.setDate(startDateTime.getDate() + 1);\n    startDateTime.setHours(16, 0, 0, 0);\n  }\n  // Demo de 20 minutos\n  endDateTime = new Date(startDateTime.getTime() + 20 * 60 * 1000);\n} catch(e) {\n  startDateTime = new Date();\n  startDateTime.setDate(startDateTime.getDate() + 1);\n  startDateTime.setHours(16, 0, 0, 0);\n  endDateTime = new Date(startDateTime.getTime() + 20 * 60 * 1000);\n}\n\n// Extraer solo el mensaje de confirmación (después del marcador)\nconst afterCode = lineEnd !== -1 ? afterMarker.substring(lineEnd + 1).trim() : '';\n// Eliminar también la línea ETAPA_ACTUALIZADA del mensaje al cliente\nconst cleanMessage = afterCode.replace(/ETAPA_ACTUALIZADA:[^\\n]*/g, '').trim();\n\nconst startFormatted = startDateTime.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });\n\nreturn [{\n  json: {\n    ...($json),\n    demoData: {\n      contactName: contactName || 'Prospecto',\n      businessName: businessName || 'Clínica Dental',\n      phone: phone || '',\n      startDateTime: startDateTime.toISOString(),\n      endDateTime: endDateTime.toISOString(),\n      startDateTimeFormatted: startFormatted,\n      summary: `Demo IA — ${businessName} — ${contactName}`,\n      description: `Contacto: ${contactName}\\nNegocio: ${businessName}\\nTeléfono: ${phone}\\nAgendado por: Sofia (Bot Prospector)\\nDuración: 20 minutos`\n    },\n    cleanConfirmationMessage: cleanMessage\n  }\n}];"
+      },
+      "id": "parse-demo",
+      "name": "Parsear Datos de Demo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 240]
+    },
+    {
+      "parameters": {
+        "calendarId": "primary",
+        "start": "={{ $json.demoData.startDateTime }}",
+        "end": "={{ $json.demoData.endDateTime }}",
+        "additionalFields": {
+          "summary": "={{ $json.demoData.summary }}",
+          "description": "={{ $json.demoData.description }}"
+        }
+      },
+      "id": "create-calendar-event",
+      "name": "Crear Demo en Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [1780, 240],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_URL_DE_TU_GOOGLE_SHEET",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Demos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha_agendamiento": "={{ new Date().toISOString() }}",
+            "negocio": "={{ $json.demoData.businessName }}",
+            "contacto": "={{ $json.demoData.contactName }}",
+            "telefono": "={{ $json.demoData.phone }}",
+            "fecha_demo": "={{ $json.demoData.startDateTimeFormatted }}",
+            "calendar_event_id": "={{ $('Crear Demo en Google Calendar').first().json.id }}",
+            "estado": "Confirmada",
+            "zoom_link": "Pendiente"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-demo",
+      "name": "Registrar Demo en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2000, 240],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto Prospecto').first().json.prospectContext;\nconst aiRaw = $('Sofia — Agente IA').first().json.message.content;\n\n// Extraer la nueva etapa del marcador ETAPA_ACTUALIZADA\nlet newStage = context.conversationStage;\nconst stageMatch = aiRaw.match(/ETAPA_ACTUALIZADA:([\\w_]+)/);\nif (stageMatch && stageMatch[1]) {\n  newStage = stageMatch[1].trim();\n}\n\n// Intentar obtener datos de demo si fue agendada\nlet demoData = null;\nlet calendarEventId = '';\ntry {\n  demoData = $('Parsear Datos de Demo').first()?.json?.demoData;\n  calendarEventId = $('Crear Demo en Google Calendar').first()?.json?.id || '';\n} catch(e) {\n  // No hubo demo en este turno — es flujo normal\n}\n\n// Actualizar historial con respuesta del bot\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiRaw.replace(/DEMO_AGENDADA:[^\\n]*/g, '').replace(/ETAPA_ACTUALIZADA:[^\\n]*/g, '').trim(),\n  timestamp: new Date().toISOString()\n}].slice(-12);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  business_name: demoData?.businessName || context.businessName,\n  contact_name: demoData?.contactName || context.contactName,\n  phone: msg.senderId,\n  status: newStage === 'demo_confirmada' ? 'demo_confirmada' : 'en_conversacion',\n  conversation_stage: newStage,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  demo_date: demoData?.startDateTimeFormatted || context.demoDate,\n  demo_calendar_id: calendarEventId || '',\n  opening_used: context.openingUsed,\n  notes: context.notes,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, demoData, msg, context, aiRaw } }];"
+      },
+      "id": "prepare-prospect-update",
+      "name": "Preparar Actualización Prospecto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, 380]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_URL_DE_TU_GOOGLE_SHEET",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospectos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sender_id": "={{ $json.rowData.sender_id }}",
+            "business_name": "={{ $json.rowData.business_name }}",
+            "contact_name": "={{ $json.rowData.contact_name }}",
+            "phone": "={{ $json.rowData.phone }}",
+            "status": "={{ $json.rowData.status }}",
+            "conversation_stage": "={{ $json.rowData.conversation_stage }}",
+            "conversation_history": "={{ $json.rowData.conversation_history }}",
+            "last_message": "={{ $json.rowData.last_message }}",
+            "last_message_date": "={{ $json.rowData.last_message_date }}",
+            "demo_date": "={{ $json.rowData.demo_date }}",
+            "demo_calendar_id": "={{ $json.rowData.demo_calendar_id }}",
+            "opening_used": "={{ $json.rowData.opening_used }}",
+            "notes": "={{ $json.rowData.notes }}",
+            "updated_at": "={{ $json.rowData.updated_at }}"
+          },
+          "matchingColumns": ["sender_id"],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "save-prospect",
+      "name": "Guardar Prospecto en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2440, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Preparar Actualización Prospecto').first().json;\nconst demoData = ctx.demoData;\nconst senderName = ctx.context.contactName || ctx.msg.senderName;\nconst aiRaw = ctx.aiRaw;\n\nlet responseMessage = '';\n\nif (demoData) {\n  // Ruta con demo agendada: usar el mensaje de confirmación del AI (después del marcador)\n  const markerIndex = aiRaw.indexOf('DEMO_AGENDADA:');\n  let confirmationMsg = '';\n  if (markerIndex !== -1) {\n    const afterMarker = aiRaw.substring(markerIndex);\n    const lineEnd = afterMarker.indexOf('\\n');\n    if (lineEnd !== -1) {\n      confirmationMsg = afterMarker.substring(lineEnd + 1)\n        .replace(/ETAPA_ACTUALIZADA:[^\\n]*/g, '')\n        .trim();\n    }\n  }\n  // Si el AI no escribió confirmación, construir una de respaldo\n  if (!confirmationMsg) {\n    confirmationMsg = `Perfecto ${senderName} ✅ Ya quedó agendada tu demo el ${demoData.startDateTimeFormatted}.\\n\\nEs una sesión de 20 minutos directamente con el dueño. Te mando el link de Zoom en un momento. ¡Hasta entonces!`;\n  }\n  responseMessage = confirmationMsg;\n} else {\n  // Ruta normal: limpiar marcadores del mensaje\n  responseMessage = aiRaw\n    .replace(/DEMO_AGENDADA:[^\\n]*/g, '')\n    .replace(/ETAPA_ACTUALIZADA:[^\\n]*/g, '')\n    .trim();\n}\n\n// Escapar caracteres especiales para TwiML/XML\nconst xmlEscape = (str) => str\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;');\n\nreturn [{ json: { message: responseMessage, messageXml: xmlEscape(responseMessage), senderId: ctx.msg.senderId } }];"
+      },
+      "id": "prepare-response",
+      "name": "Preparar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2660, 380]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>{{ $json.messageXml }}</Message></Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-webhook",
+      "name": "Responder Webhook TwiML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2880, 380]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Normalizar Mensaje", "type": "main", "index": 0 }]]
+    },
+    "Normalizar Mensaje": {
+      "main": [[{ "node": "Obtener Prospecto", "type": "main", "index": 0 }]]
+    },
+    "Obtener Prospecto": {
+      "main": [[{ "node": "Construir Contexto Prospecto", "type": "main", "index": 0 }]]
+    },
+    "Construir Contexto Prospecto": {
+      "main": [[{ "node": "Sofia — Agente IA", "type": "main", "index": 0 }]]
+    },
+    "Sofia — Agente IA": {
+      "main": [[{ "node": "¿Agendar Demo?", "type": "main", "index": 0 }]]
+    },
+    "¿Agendar Demo?": {
+      "main": [
+        [{ "node": "Parsear Datos de Demo", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualización Prospecto", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parsear Datos de Demo": {
+      "main": [[{ "node": "Crear Demo en Google Calendar", "type": "main", "index": 0 }]]
+    },
+    "Crear Demo en Google Calendar": {
+      "main": [[{ "node": "Registrar Demo en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Registrar Demo en Sheets": {
+      "main": [[{ "node": "Preparar Actualización Prospecto", "type": "main", "index": 0 }]]
+    },
+    "Preparar Actualización Prospecto": {
+      "main": [[{ "node": "Guardar Prospecto en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Guardar Prospecto en Sheets": {
+      "main": [[{ "node": "Preparar Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Preparar Respuesta": {
+      "main": [[{ "node": "Responder Webhook TwiML", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "timezone": "America/Mexico_City"
+  },
+  "staticData": null,
+  "tags": ["sofia", "prospector", "agencia-ia", "whatsapp", "twilio", "outbound"]
+}

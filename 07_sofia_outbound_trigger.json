@@ -1,0 +1,233 @@
+{
+  "name": "Sofia — Outbound Trigger (30 Prospectos/Día)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Trigger Lunes-Viernes 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 380]
+    },
+    {
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_URL_DE_TU_GOOGLE_SHEET",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospectos",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "pendiente"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "id": "read-pending-prospects",
+      "name": "Leer Prospectos Pendientes",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [460, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Limitar a máximo 30 prospectos por día\nconst allProspects = $input.all();\nconst todayProspects = allProspects.slice(0, 30);\n\nif (todayProspects.length === 0) {\n  // No hay prospectos pendientes — detener ejecución silenciosamente\n  return [];\n}\n\nreturn todayProspects.map((item, index) => {\n  const p = item.json;\n  // Alternar entre apertura A y B\n  const opening = (index % 2 === 0) ? 'A' : 'B';\n  return { json: { ...p, opening_selected: opening, batch_index: index } };\n});"
+      },
+      "id": "limit-and-tag",
+      "name": "Limitar 30 y Asignar Apertura",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "split-batches",
+      "name": "Procesar Uno por Uno",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $input.first().json;\n\n// Número de teléfono: ya debe estar en formato +521234567890\nconst phone = p.phone || p.sender_id || '';\nif (!phone) {\n  // Si no hay teléfono, saltar este prospecto\n  return [];\n}\n\nconst businessName = p.business_name || 'tu clínica';\nconst contactName = p.contact_name || '';\n\n// Seleccionar apertura A o B\nlet message = '';\nif (p.opening_selected === 'A') {\n  // Apertura A: más directa, pregunta por tratamientos\n  message = `Hey${contactName ? ', ' + contactName.split(' ')[0] : ''}, soy Sofía. Estuve viendo ${businessName} y me dio curiosidad, ¿qué tipo de tratamientos hacen?`;\n} else {\n  // Apertura B: menciona ortodoncia específicamente\n  message = `Hola${contactName ? ', ' + contactName.split(' ')[0] : ''}, soy Sofía. Vi ${businessName} y me llamó la atención, quería saber un poco más de los servicios que tienen, especialmente en ortodoncia.`;\n}\n\nreturn [{\n  json: {\n    ...p,\n    toPhone: `whatsapp:${phone}`,\n    messageBody: message,\n    opening_used: p.opening_selected\n  }\n}];"
+      },
+      "id": "prepare-initial-message",
+      "name": "Preparar Mensaje Inicial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $vars.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "=whatsapp:{{ $vars.TWILIO_WHATSAPP_NUMBER }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $json.toPhone }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.messageBody }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "send-whatsapp-twilio",
+      "name": "Enviar WhatsApp via Twilio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 380],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "PONER_TU_CREDENTIAL_ID_TWILIO_BASIC_AUTH",
+          "name": "Twilio Basic Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $('Preparar Mensaje Inicial').first().json;\nconst twilioResponse = $input.first().json;\n\n// Verificar si Twilio aceptó el mensaje\nconst messageSid = twilioResponse.sid || '';\nconst twilioStatus = twilioResponse.status || 'unknown';\nconst errorCode = twilioResponse.error_code || null;\n\nif (errorCode) {\n  // Twilio reportó error — marcar como error en Sheets\n  return [{\n    json: {\n      sender_id: prospect.phone || prospect.sender_id,\n      status: 'error_envio',\n      conversation_stage: 'pendiente',\n      opening_used: prospect.opening_used,\n      notes: `Error Twilio: ${twilioResponse.message || errorCode}`,\n      updated_at: new Date().toISOString()\n    }\n  }];\n}\n\n// Mensaje enviado exitosamente\nreturn [{\n  json: {\n    sender_id: prospect.phone || prospect.sender_id,\n    status: 'contactado',\n    conversation_stage: 'esperando_respuesta_inicial',\n    opening_used: prospect.opening_used,\n    last_message_date: new Date().toISOString(),\n    notes: `Primer contacto enviado. SID: ${messageSid}`,\n    updated_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "process-twilio-response",
+      "name": "Procesar Respuesta Twilio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 380]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_CON_URL_DE_TU_GOOGLE_SHEET",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Prospectos",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sender_id": "={{ $json.sender_id }}",
+            "status": "={{ $json.status }}",
+            "conversation_stage": "={{ $json.conversation_stage }}",
+            "opening_used": "={{ $json.opening_used }}",
+            "last_message_date": "={{ $json.last_message_date }}",
+            "notes": "={{ $json.notes }}",
+            "updated_at": "={{ $json.updated_at }}"
+          },
+          "matchingColumns": ["sender_id"],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "update-prospect-status",
+      "name": "Actualizar Estado en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1780, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "id": "wait-between-messages",
+      "name": "Esperar 3 Segundos",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [2000, 380],
+      "webhookId": "wait-sofia-outbound"
+    }
+  ],
+  "connections": {
+    "Trigger Lunes-Viernes 9am": {
+      "main": [[{ "node": "Leer Prospectos Pendientes", "type": "main", "index": 0 }]]
+    },
+    "Leer Prospectos Pendientes": {
+      "main": [[{ "node": "Limitar 30 y Asignar Apertura", "type": "main", "index": 0 }]]
+    },
+    "Limitar 30 y Asignar Apertura": {
+      "main": [[{ "node": "Procesar Uno por Uno", "type": "main", "index": 0 }]]
+    },
+    "Procesar Uno por Uno": {
+      "main": [[{ "node": "Preparar Mensaje Inicial", "type": "main", "index": 0 }]]
+    },
+    "Preparar Mensaje Inicial": {
+      "main": [[{ "node": "Enviar WhatsApp via Twilio", "type": "main", "index": 0 }]]
+    },
+    "Enviar WhatsApp via Twilio": {
+      "main": [[{ "node": "Procesar Respuesta Twilio", "type": "main", "index": 0 }]]
+    },
+    "Procesar Respuesta Twilio": {
+      "main": [[{ "node": "Actualizar Estado en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Actualizar Estado en Sheets": {
+      "main": [[{ "node": "Esperar 3 Segundos", "type": "main", "index": 0 }]]
+    },
+    "Esperar 3 Segundos": {
+      "main": [[{ "node": "Procesar Uno por Uno", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "timezone": "America/Mexico_City"
+  },
+  "staticData": null,
+  "tags": ["sofia", "outbound", "prospector", "twilio", "agencia-ia", "trigger"]
+}
