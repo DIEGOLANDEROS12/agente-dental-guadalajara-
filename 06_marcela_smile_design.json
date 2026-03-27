@@ -1,0 +1,354 @@
+{
+  "name": "Marcela — Smile Design Studio Guadalajara",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "smile-design",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 380],
+      "webhookId": "smile-design"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst data = item.json.body || item.json;\n\nlet normalized = {\n  channel: 'whatsapp',\n  senderId: '',\n  senderName: '',\n  messageText: '',\n  messageId: '',\n  timestamp: new Date().toISOString()\n};\n\n// ── TWILIO WhatsApp ──\nif (data.From && data.From.includes('whatsapp:')) {\n  normalized.channel = 'whatsapp';\n  normalized.senderId = data.From.replace('whatsapp:', '');\n  normalized.senderName = data.ProfileName || 'Cliente';\n  normalized.messageText = data.Body || '';\n  normalized.messageId = data.MessageSid || '';\n\n// ── META WhatsApp Business API ──\n} else if (data.object === 'whatsapp_business_account' || data.entry?.[0]?.changes?.[0]?.field === 'messages') {\n  const entry = data.entry?.[0]?.changes?.[0]?.value;\n  const msg = entry?.messages?.[0];\n  if (!msg || msg.type === 'status') return [];\n  normalized.channel = 'whatsapp';\n  normalized.senderId = msg?.from || '';\n  normalized.senderName = entry?.contacts?.[0]?.profile?.name || 'Cliente';\n  normalized.messageText = msg?.text?.body || msg?.interactive?.button_reply?.title || '';\n  normalized.messageId = msg?.id || '';\n\n// ── META Instagram DM ──\n} else if (data.object === 'instagram' || data.entry?.[0]?.messaging) {\n  const messaging = data.entry?.[0]?.messaging?.[0];\n  if (!messaging?.message?.text) return [];\n  normalized.channel = 'instagram';\n  normalized.senderId = messaging?.sender?.id || '';\n  normalized.senderName = 'Cliente Instagram';\n  normalized.messageText = messaging?.message?.text || '';\n  normalized.messageId = messaging?.message?.mid || '';\n\n// ── DATOS DE PRUEBA DIRECTOS ──\n} else if (data.senderId || data.messageText) {\n  normalized = { ...normalized, ...data };\n}\n\nif (!normalized.messageText) return [];\n\nreturn [{ json: normalized }];"
+      },
+      "id": "normalize-message",
+      "name": "Normalizar Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sender_id",
+              "lookupValue": "={{ $json.senderId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "get-memory",
+      "name": "Obtener Memoria del Paciente",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [680, 380],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst memoryData = $input.first().json;\n\nlet patientContext = {\n  isNewPatient: true,\n  name: msg.senderName,\n  senderId: msg.senderId,\n  channel: msg.channel,\n  conversationHistory: [],\n  lastService: '',\n  lastAppointment: '',\n  preferences: '',\n  appointmentCount: 0\n};\n\nif (memoryData && memoryData.sender_id) {\n  patientContext.isNewPatient = false;\n  patientContext.name = memoryData.name || msg.senderName;\n  patientContext.conversationHistory = JSON.parse(memoryData.conversation_history || '[]');\n  patientContext.lastService = memoryData.last_service || '';\n  patientContext.lastAppointment = memoryData.last_appointment || '';\n  patientContext.preferences = memoryData.preferences || '';\n  patientContext.appointmentCount = parseInt(memoryData.appointment_count || '0');\n}\n\npatientContext.conversationHistory.push({\n  role: 'user',\n  content: msg.messageText,\n  timestamp: msg.timestamp\n});\n\nif (patientContext.conversationHistory.length > 10) {\n  patientContext.conversationHistory = patientContext.conversationHistory.slice(-10);\n}\n\nreturn [{ json: { ...msg, patientContext } }];"
+      },
+      "id": "build-context",
+      "name": "Construir Contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Eres Marcela, la asistente virtual de Smile Design Studio Guadalajara. Tu función es atender clientes por WhatsApp e Instagram de forma NATURAL, como una persona real. Ayudas a agendar citas, respondes preguntas sobre servicios y guías la conversación de forma cálida e inteligente.\n\n## TU PERSONALIDAD\n- Amable, cálida y profesional\n- Conversación natural, NUNCA robótica\n- Lenguaje tipo WhatsApp, fluido y claro\n- Usas emojis con moderación (😊✨)\n- No suenas genérica\n\n## INFORMACIÓN DE SMILE DESIGN STUDIO\n- Nombre: Smile Design Studio Guadalajara\n- Dirección: Calle Libertad 1814, Col. Providencia, Guadalajara, Jalisco\n- WhatsApp: +52 33 3615-7820\n- Instagram: @smiledesignstudiogdl\n- Horarios: Lunes a Viernes 9:00 am – 7:00 pm | Sábado 9:00 am – 2:00 pm | Domingo: Cerrado\n\n## SERVICIOS Y PRECIOS\n1. Consulta de valoración — GRATIS (se abona al tratamiento)\n2. Limpieza dental profesional — $700 MXN\n3. Blanqueamiento dental LED — $2,800 MXN\n4. Diseño de sonrisa digital — $600 MXN (se descuenta si contratas tratamiento)\n5. Carillas de porcelana — desde $5,000 MXN por pieza\n6. Carillas de composite/resina — desde $1,800 MXN por pieza\n7. Ortodoncia metálica — desde $14,000 MXN (todo incluido)\n8. Ortodoncia estética brackets cerámicos — desde $17,500 MXN\n9. Alineadores transparentes Invisalign — desde $28,000 MXN\n10. Implante dental titanio — desde $18,500 MXN (incluye corona)\n11. Corona de porcelana — desde $5,500 MXN\n12. Endodoncia — desde $2,500 MXN\n13. Extracción simple — desde $800 MXN\n14. Resinas/composite — desde $1,200 MXN por pieza\n15. Guarda nocturna (bruxismo) — desde $2,200 MXN\n\n## FORMAS DE PAGO\n- Efectivo, tarjeta de débito y crédito\n- Meses sin intereses con tarjeta\n- Kueski Pay (crédito en línea)\n- Planes de pago personalizados en tratamientos mayores\n\n## MANEJO DE FECHAS (MUY IMPORTANTE)\n- Siempre interpreta fechas relativas (ej: mañana, el lunes, el 20 de marzo)\n- La fecha de hoy es: {{ new Date().toLocaleDateString('es-MX', {weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone:'America/Mexico_City'}) }}\n- Cuando confirmes citas, SIEMPRE escribe la fecha completa: ej. '20 de marzo a las 7:00 pm'\n- Nunca dejes fechas ambiguas\n\n## MEMORIA Y CONTEXTO\n- Es cliente nuevo: {{ $json.patientContext.isNewPatient }}\n- Nombre guardado: {{ $json.patientContext.name }}\n- Último servicio: {{ $json.patientContext.lastService }}\n- Última cita: {{ $json.patientContext.lastAppointment }}\n- Visitas previas: {{ $json.patientContext.appointmentCount }}\n- Canal: {{ $json.channel }}\n- NO vuelvas a pedir datos que ya tienes\n- Adáptate al flujo de la conversación\n\n## DATOS QUE NECESITAS PARA AGENDAR\nDebe obtener (sin repetir lo que ya tienes):\n1. Nombre completo\n2. Número de teléfono\n3. Servicio deseado\n4. Fecha\n5. Hora\n\n## FLUJO DE CONVERSACIÓN\n\nSALUDO:\nCuando el cliente dice hola, buenos días, etc.:\n→ 'Hola 😊 gracias por contactar a Smile Design Studio, ¿en qué te puedo ayudar?'\n\nCUANDO PIDE RESERVA:\n→ 'Perfecto 😊 ¿para qué día y hora te gustaría tu cita?'\n\nCUANDO DA FECHA:\n→ 'Perfecto ✨ solo me podrías regalar tu nombre completo y número de teléfono, por favor?'\n\nCUANDO DA SUS DATOS:\n→ 'Gracias [nombre] 😊 ¿qué servicio te gustaría agendar?'\n\nCUANDO PREGUNTA SERVICIOS:\n→ Comparte los servicios relevantes con sus precios y ofrece agendar\n\nCUANDO TIENES TODOS LOS DATOS:\n→ Confirma y escribe EXACTAMENTE: AGENDAR_CITA:[nombre completo]|[servicio]|[fecha DD/MM/YYYY HH:mm]|[telefono]\n→ Luego escribe la confirmación natural para el cliente\n\nCONFIRMACIÓN FINAL (SIEMPRE esta estructura):\n'Perfecto [nombre], ya quedó agendada tu cita de [servicio] el [fecha completa] a las [hora completa] 😊'\n\nDESPEDIDA:\n'Gracias a ti [nombre] 😊 te esperamos el [fecha] a las [hora], que tengas un maravilloso día ✨'\n\n## REGLAS DE AUTOMATIZACIÓN (CRÍTICO)\n- Cuando tengas TODOS los datos, escribe PRIMERO el código: AGENDAR_CITA:[nombre]|[servicio]|[DD/MM/YYYY HH:mm]|[telefono]\n- Luego escribe el mensaje de confirmación natural\n- Nunca cambies el formato del código\n- No uses frases ambiguas en la confirmación\n- Máximo 4 oraciones por respuesta\n- Nunca des diagnósticos médicos, refiere siempre a consulta presencial\n- Si hay urgencia dental, prioridad máxima y ofrece cita el mismo día"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.patientContext.conversationHistory.map(m => m.role + ': ' + m.content).join('\\n') }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 400
+        }
+      },
+      "id": "ai-agent",
+      "name": "Marcela — Agente IA",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [1120, 380],
+      "credentials": {
+        "openAiApi": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content }}",
+                    "rightValue": "AGENDAR_CITA:",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "agendar"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "route-intent",
+      "name": "Hay que agendar",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $json.message.content;\nconst marker = 'AGENDAR_CITA:';\nconst markerIndex = aiResponse.indexOf(marker);\n\nif (markerIndex === -1) {\n  return [{ json: { ...($json), parseError: true } }];\n}\n\nconst appointmentData = aiResponse.substring(markerIndex + marker.length);\nconst parts = appointmentData.split('|');\nconst [patientName, service, dateTimeStr, phone] = parts.map(p => p.trim());\n\nlet startDateTime, endDateTime;\ntry {\n  if (dateTimeStr && dateTimeStr.match(/\\d{2}\\/\\d{2}\\/\\d{4}/)) {\n    const [datePart, timePart] = dateTimeStr.split(' ');\n    const [day, month, year] = datePart.split('/');\n    const [hour, minute] = (timePart || '10:00').split(':');\n    startDateTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));\n  } else {\n    startDateTime = new Date();\n    startDateTime.setDate(startDateTime.getDate() + 1);\n    startDateTime.setHours(10, 0, 0, 0);\n  }\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);\n} catch(e) {\n  startDateTime = new Date();\n  startDateTime.setDate(startDateTime.getDate() + 1);\n  startDateTime.setHours(10, 0, 0, 0);\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);\n}\n\nconst cleanMessage = aiResponse.substring(0, markerIndex).trim() || aiResponse.substring(markerIndex + marker.length + appointmentData.length).trim();\n\nreturn [{\n  json: {\n    ...($json),\n    appointmentData: {\n      patientName: patientName || 'Paciente',\n      service: service || 'Consulta',\n      phone: phone || '',\n      startDateTime: startDateTime.toISOString(),\n      endDateTime: endDateTime.toISOString(),\n      startDateTimeFormatted: startDateTime.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }),\n      summary: `Cita — ${service} — ${patientName}`,\n      description: `Paciente: ${patientName}\\nServicio: ${service}\\nTeléfono: ${phone}\\nAgendado vía: Marcela (Agente Virtual)\\nClínica: Smile Design Studio Guadalajara`\n    },\n    cleanMessage\n  }\n}];"
+      },
+      "id": "parse-appointment",
+      "name": "Parsear Datos de Cita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 260]
+    },
+    {
+      "parameters": {
+        "calendarId": "primary",
+        "start": "={{ $json.appointmentData.startDateTime }}",
+        "end": "={{ $json.appointmentData.endDateTime }}",
+        "additionalFields": {
+          "summary": "={{ $json.appointmentData.summary }}",
+          "description": "={{ $json.appointmentData.description }}",
+          "location": "Calle Libertad 1814, Col. Providencia, Guadalajara, Jalisco"
+        }
+      },
+      "id": "create-calendar-event",
+      "name": "Crear Cita en Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [1780, 260],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Citas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha_agendamiento": "={{ new Date().toISOString() }}",
+            "paciente": "={{ $json.appointmentData.patientName }}",
+            "servicio": "={{ $json.appointmentData.service }}",
+            "fecha_cita": "={{ $json.appointmentData.startDateTimeFormatted }}",
+            "telefono": "={{ $json.appointmentData.phone }}",
+            "canal": "={{ $('Normalizar Mensaje').first().json.channel }}",
+            "calendar_event_id": "={{ $('Crear Cita en Google Calendar').first().json.id }}",
+            "estado": "Confirmada",
+            "recordatorio_enviado": "No"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-appointment",
+      "name": "Registrar Cita en Hoja Citas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2000, 160],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto').first().json.patientContext;\nconst aiResponse = $('Marcela — Agente IA').first().json.message.content;\n\nlet appointment = null;\ntry { appointment = $('Parsear Datos de Cita').first()?.json?.appointmentData; } catch(e) {}\n\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiResponse,\n  timestamp: new Date().toISOString()\n}].slice(-10);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  name: context.name,\n  channel: msg.channel,\n  phone: msg.senderId,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  last_service: appointment?.service || context.lastService,\n  last_appointment: appointment?.startDateTimeFormatted || context.lastAppointment,\n  appointment_count: context.appointmentCount + (appointment ? 1 : 0),\n  preferences: context.preferences,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, isNewPatient: context.isNewPatient, msg, appointment } }];"
+      },
+      "id": "prepare-memory-update",
+      "name": "Preparar Actualizacion de Memoria",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sender_id": "={{ $json.rowData.sender_id }}",
+            "name": "={{ $json.rowData.name }}",
+            "channel": "={{ $json.rowData.channel }}",
+            "phone": "={{ $json.rowData.phone }}",
+            "conversation_history": "={{ $json.rowData.conversation_history }}",
+            "last_message": "={{ $json.rowData.last_message }}",
+            "last_message_date": "={{ $json.rowData.last_message_date }}",
+            "last_service": "={{ $json.rowData.last_service }}",
+            "last_appointment": "={{ $json.rowData.last_appointment }}",
+            "appointment_count": "={{ $json.rowData.appointment_count }}",
+            "preferences": "={{ $json.rowData.preferences }}",
+            "updated_at": "={{ $json.rowData.updated_at }}"
+          },
+          "matchingColumns": ["sender_id"],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "save-memory",
+      "name": "Guardar Memoria en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2220, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Preparar Actualizacion de Memoria').first().json;\nconst appointment = ctx.appointment;\nconst senderName = ctx.msg.senderName;\n\nlet responseMessage = '';\n\nif (appointment) {\n  // Si hay cita: usa el mensaje natural de confirmación (sin el código AGENDAR_CITA)\n  const aiRaw = $('Marcela — Agente IA').first().json.message.content;\n  const markerIndex = aiRaw.indexOf('AGENDAR_CITA:');\n  // Toma lo que está DESPUÉS del marcador (el mensaje de confirmación para el cliente)\n  let afterMarker = '';\n  if (markerIndex !== -1) {\n    const afterCode = aiRaw.substring(markerIndex);\n    const newlineIndex = afterCode.indexOf('\\n');\n    afterMarker = newlineIndex !== -1 ? afterCode.substring(newlineIndex + 1).trim() : '';\n  }\n  // Si no hay mensaje después, construye uno de respaldo\n  responseMessage = afterMarker || `Perfecto ${senderName} 😊 ya quedó agendada tu cita de ${appointment.service} el ${appointment.startDateTimeFormatted}.\\n\\n📍 Smile Design Studio\\nCalle Libertad 1814, Providencia, Guadalajara\\n\\nTe esperamos. Si necesitas cambiar tu cita, escríbeme aquí ✨`;\n} else {\n  // Respuesta normal de conversación (sin cita)\n  const aiResponse = $('Marcela — Agente IA').first().json.message.content;\n  responseMessage = aiResponse.replace(/AGENDAR_CITA:[^\\n]*/g, '').trim();\n}\n\nreturn [{ json: { message: responseMessage, senderId: ctx.msg.senderId } }];"
+      },
+      "id": "prepare-response",
+      "name": "Preparar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>{{ $json.message }}</Message></Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/xml"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-webhook",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2660, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Normalizar Mensaje", "type": "main", "index": 0 }]]
+    },
+    "Normalizar Mensaje": {
+      "main": [[{ "node": "Obtener Memoria del Paciente", "type": "main", "index": 0 }]]
+    },
+    "Obtener Memoria del Paciente": {
+      "main": [[{ "node": "Construir Contexto", "type": "main", "index": 0 }]]
+    },
+    "Construir Contexto": {
+      "main": [[{ "node": "Marcela — Agente IA", "type": "main", "index": 0 }]]
+    },
+    "Marcela — Agente IA": {
+      "main": [[{ "node": "Hay que agendar", "type": "main", "index": 0 }]]
+    },
+    "Hay que agendar": {
+      "main": [
+        [{ "node": "Parsear Datos de Cita", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualizacion de Memoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parsear Datos de Cita": {
+      "main": [[{ "node": "Crear Cita en Google Calendar", "type": "main", "index": 0 }]]
+    },
+    "Crear Cita en Google Calendar": {
+      "main": [
+        [{ "node": "Registrar Cita en Hoja Citas", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualizacion de Memoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "Registrar Cita en Hoja Citas": {
+      "main": [[{ "node": "Preparar Actualizacion de Memoria", "type": "main", "index": 0 }]]
+    },
+    "Preparar Actualizacion de Memoria": {
+      "main": [[{ "node": "Guardar Memoria en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Guardar Memoria en Sheets": {
+      "main": [[{ "node": "Preparar Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Preparar Respuesta": {
+      "main": [[{ "node": "Responder Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "tags": ["dental", "whatsapp", "agente-virtual", "smile-design", "marcela", "produccion"]
+}
