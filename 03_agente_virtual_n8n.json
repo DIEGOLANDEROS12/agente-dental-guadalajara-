@@ -6,7 +6,9 @@
         "httpMethod": "POST",
         "path": "agente-dental",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "rawBody": true
+        }
       },
       "id": "webhook-trigger",
       "name": "Webhook",
@@ -279,14 +281,14 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ status: 'ok', reply: $json.message, senderId: $json.senderId }) }}",
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>{{ $json.message }}</Message></Response>",
         "options": {
           "responseHeaders": {
             "entries": [
               {
                 "name": "Content-Type",
-                "value": "application/json"
+                "value": "text/xml"
               }
             ]
           }
