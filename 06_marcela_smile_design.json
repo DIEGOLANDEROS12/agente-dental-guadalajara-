@@ -5,7 +5,7 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "smile-design",
-        "responseMode": "responseNode",
+        "responseMode": "onReceived",
         "options": {
           "rawBody": true
         }
@@ -282,24 +282,22 @@
     },
     {
       "parameters": {
-        "respondWith": "text",
-        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response><Message>{{ $json.message }}</Message></Response>",
-        "options": {
-          "responseHeaders": {
-            "entries": [
-              {
-                "name": "Content-Type",
-                "value": "text/xml"
-              }
-            ]
-          }
-        }
+        "operation": "send",
+        "from": "whatsapp:+14155238886",
+        "to": "=whatsapp:{{ $json.senderId }}",
+        "message": "={{ $json.message }}"
       },
       "id": "respond-webhook",
       "name": "Responder Webhook",
-      "type": "n8n-nodes-base.respondToWebhook",
+      "type": "n8n-nodes-base.twilio",
       "typeVersion": 1,
-      "position": [2660, 400]
+      "position": [2660, 400],
+      "credentials": {
+        "twilioApi": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Twilio account"
+        }
+      }
     }
   ],
   "connections": {
