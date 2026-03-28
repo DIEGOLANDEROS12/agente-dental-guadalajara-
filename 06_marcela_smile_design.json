@@ -57,7 +57,9 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
       "position": [680, 380],
+      "executeOnce": false,
       "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "PONER_TU_CREDENTIAL_ID",
@@ -109,36 +111,20 @@
     },
     {
       "parameters": {
-        "rules": {
-          "values": [
+        "conditions": {
+          "string": [
             {
-              "conditions": {
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.message.content }}",
-                    "rightValue": "AGENDAR_CITA:",
-                    "operator": {
-                      "type": "string",
-                      "operation": "contains",
-                      "caseSensitive": false
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "agendar"
+              "value1": "={{ $json.message.content }}",
+              "operation": "contains",
+              "value2": "AGENDAR_CITA:"
             }
           ]
-        },
-        "options": {
-          "fallbackOutput": "extra"
         }
       },
       "id": "route-intent",
       "name": "Hay que agendar",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3,
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
       "position": [1340, 380]
     },
     {
@@ -255,7 +241,20 @@
             "updated_at": "={{ $json.rowData.updated_at }}"
           },
           "matchingColumns": ["sender_id"],
-          "schema": []
+          "schema": [
+            {"id": "sender_id", "displayName": "sender_id", "required": false, "defaultMatch": true, "type": "string", "display": true, "canBeUsedToMatch": true},
+            {"id": "name", "displayName": "name", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "channel", "displayName": "channel", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "phone", "displayName": "phone", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "conversation_history", "displayName": "conversation_history", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_message", "displayName": "last_message", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_message_date", "displayName": "last_message_date", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_service", "displayName": "last_service", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_appointment", "displayName": "last_appointment", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "appointment_count", "displayName": "appointment_count", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "preferences", "displayName": "preferences", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "updated_at", "displayName": "updated_at", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false}
+          ]
         },
         "options": {}
       },
