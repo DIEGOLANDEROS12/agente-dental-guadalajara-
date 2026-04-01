@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dra. Elizabeth Priccillo - Clínica Dental</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-icon">🦷</span>
+        <div>
+          <span class="logo-name">Dra. Elizabeth Priccillo</span>
+          <span class="logo-sub">Clínica Dental</span>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#" onclick="openModal('servicios-modal')">Servicios</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+        <li><a href="#" class="btn-nav" onclick="openModal('contacto-modal')">Contacto</a></li>
+      </ul>
+      <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-overlay"></div>
+    <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=1600&q=80" alt="Clínica dental moderna" class="hero-bg" />
+    <div class="hero-content">
+      <span class="hero-badge">Tu sonrisa, nuestra prioridad</span>
+      <h1>Bienvenido a la<br /><span>Clínica Dental</span><br />Dra. Elizabeth Priccillo</h1>
+      <p>Atención dental de calidad con tecnología de vanguardia y el cuidado que mereces.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="openModal('contacto-modal')">Agendar Cita</button>
+        <button class="btn-outline" onclick="openModal('servicios-modal')">Ver Servicios</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="stats-container">
+      <div class="stat-item">
+        <h3>+15</h3>
+        <p>Años de experiencia</p>
+      </div>
+      <div class="stat-item">
+        <h3>+5,000</h3>
+        <p>Pacientes atendidos</p>
+      </div>
+      <div class="stat-item">
+        <h3>+20</h3>
+        <p>Tratamientos disponibles</p>
+      </div>
+      <div class="stat-item">
+        <h3>100%</h3>
+        <p>Satisfacción garantizada</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section class="nosotros" id="nosotros">
+    <div class="section-container">
+      <div class="nosotros-img">
+        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=700&q=80" alt="Doctora dental" />
+        <div class="exp-badge">+15 años<br/>de experiencia</div>
+      </div>
+      <div class="nosotros-text">
+        <span class="section-tag">Sobre nosotros</span>
+        <h2>Cuidamos tu salud dental con dedicación y profesionalismo</h2>
+        <p>La <strong>Dra. Elizabeth Priccillo</strong> es una odontóloga certificada con más de 15 años de experiencia brindando atención dental integral. Su clínica cuenta con equipos de última generación y un equipo humano comprometido con tu bienestar.</p>
+        <p>Nuestra misión es ofrecer tratamientos personalizados en un ambiente cálido y confiable, donde cada paciente se sienta cómodo y seguro.</p>
+        <ul class="nosotros-list">
+          <li>✓ Atención personalizada</li>
+          <li>✓ Tecnología de punta</li>
+          <li>✓ Esterilización certificada</li>
+          <li>✓ Precios accesibles</li>
+        </ul>
+        <button class="btn-primary" onclick="openModal('contacto-modal')">Contáctanos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS PREVIEW -->
+  <section class="servicios-prev" id="servicios">
+    <div class="section-header">
+      <span class="section-tag">Lo que ofrecemos</span>
+      <h2>Nuestros Servicios Dentales</h2>
+      <p>Contamos con una amplia gama de tratamientos para mantener y mejorar tu sonrisa.</p>
+    </div>
+    <div class="servicios-grid">
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">🦷</div>
+        <h3>Limpieza Dental</h3>
+        <p>Profilaxis profesional para mantener tus dientes sanos y brillantes.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">✨</div>
+        <h3>Blanqueamiento</h3>
+        <p>Recupera el blanco natural de tu sonrisa con nuestro tratamiento avanzado.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">😁</div>
+        <h3>Ortodoncia</h3>
+        <p>Alineamos tu sonrisa con brackets tradicionales o invisibles.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">🔬</div>
+        <h3>Implantes Dentales</h3>
+        <p>Restaura tu sonrisa con implantes de titanio de alta calidad.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">👶</div>
+        <h3>Odontopediatría</h3>
+        <p>Cuidado dental especializado para los más pequeños del hogar.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+      <div class="servicio-card" onclick="openModal('servicios-modal')">
+        <div class="serv-icon">💎</div>
+        <h3>Estética Dental</h3>
+        <p>Carillas, coronas y más para una sonrisa perfecta.</p>
+        <span class="ver-mas">Ver más →</span>
+      </div>
+    </div>
+    <div class="center-btn">
+      <button class="btn-primary" onclick="openModal('servicios-modal')">Ver todos los servicios</button>
+    </div>
+  </section>
+
+  <!-- EQUIPO -->
+  <section class="equipo" id="equipo">
+    <div class="section-header">
+      <span class="section-tag">Nuestro equipo</span>
+      <h2>Profesionales a tu servicio</h2>
+      <p>Un equipo altamente capacitado listo para cuidar tu salud bucal.</p>
+    </div>
+    <div class="equipo-grid">
+      <div class="equipo-card">
+        <div class="equipo-img-wrap">
+          <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80" alt="Dra. Elizabeth Priccillo" />
+        </div>
+        <h3>Dra. Elizabeth Priccillo</h3>
+        <span>Directora – Odontología General</span>
+        <p>Especialista en restauración dental y estética bucal con más de 15 años de experiencia.</p>
+      </div>
+      <div class="equipo-card">
+        <div class="equipo-img-wrap">
+          <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80" alt="Dr. Rodríguez" />
+        </div>
+        <h3>Dr. Carlos Rodríguez</h3>
+        <span>Especialista en Ortodoncia</span>
+        <p>Experto en ortodoncia invisible y correctiva, con enfoque en adultos y adolescentes.</p>
+      </div>
+      <div class="equipo-card">
+        <div class="equipo-img-wrap">
+          <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&q=80" alt="Dra. Martínez" />
+        </div>
+        <h3>Dra. Ana Martínez</h3>
+        <span>Odontopediatra</span>
+        <p>Especializada en el cuidado dental infantil, creando experiencias positivas para los niños.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section class="galeria">
+    <div class="section-header">
+      <span class="section-tag">Galería</span>
+      <h2>Nuestra Clínica</h2>
+    </div>
+    <div class="galeria-grid">
+      <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&q=80" alt="Consultorio 1" />
+      <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=600&q=80" alt="Consultorio 2" />
+      <img src="https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=600&q=80" alt="Equipo dental" />
+      <img src="https://images.unsplash.com/photo-1598256989800-fe5f95da9787?w=600&q=80" alt="Recepción" />
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section class="testimonios">
+    <div class="section-header">
+      <span class="section-tag">Testimonios</span>
+      <h2>Lo que dicen nuestros pacientes</h2>
+    </div>
+    <div class="testimonios-grid">
+      <div class="test-card">
+        <div class="stars">★★★★★</div>
+        <p>"La Dra. Priccillo es increíble. Me realizó un blanqueamiento y el resultado fue espectacular. ¡Me siento mucho más segura con mi sonrisa!"</p>
+        <div class="test-autor">
+          <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&q=80" alt="Paciente" />
+          <div>
+            <strong>Laura Gómez</strong>
+            <span>Paciente desde 2019</span>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <div class="stars">★★★★★</div>
+        <p>"Llevé a mis hijos con la Dra. Ana y fue una experiencia muy positiva. Los niños salieron sin miedo al dentista. Excelente equipo."</p>
+        <div class="test-autor">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&q=80" alt="Paciente" />
+          <div>
+            <strong>Roberto Sánchez</strong>
+            <span>Paciente desde 2021</span>
+          </div>
+        </div>
+      </div>
+      <div class="test-card">
+        <div class="stars">★★★★★</div>
+        <p>"Me pusieron implantes dentales y quedé completamente satisfecha. Profesionalismo, limpieza y tecnología de primera. ¡100% recomendados!"</p>
+        <div class="test-autor">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&q=80" alt="Paciente" />
+          <div>
+            <strong>María Torres</strong>
+            <span>Paciente desde 2020</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2>¿Listo para transformar tu sonrisa?</h2>
+      <p>Agenda tu cita hoy y recibe una valoración inicial sin costo.</p>
+      <div class="cta-btns">
+        <button class="btn-primary" onclick="openModal('contacto-modal')">Agendar Cita Gratis</button>
+        <a href="tel:+523312345678" class="btn-outline-white">📞 Llamar Ahora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="logo-icon">🦷</span>
+        <div>
+          <strong>Dra. Elizabeth Priccillo</strong>
+          <p>Clínica Dental – Guadalajara, México</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#" onclick="openModal('servicios-modal')">Limpieza Dental</a></li>
+          <li><a href="#" onclick="openModal('servicios-modal')">Blanqueamiento</a></li>
+          <li><a href="#" onclick="openModal('servicios-modal')">Ortodoncia</a></li>
+          <li><a href="#" onclick="openModal('servicios-modal')">Implantes</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Contacto</h4>
+        <p>📞 <a href="tel:+523312345678">+52 33 1234 5678</a></p>
+        <p>✉️ <a href="mailto:contacto@draelizabethpriccillo.com">contacto@draelizabethpriccillo.com</a></p>
+        <p>📍 Av. Chapultepec 123, Guadalajara, Jalisco</p>
+        <p>🕐 Lun–Vie: 9:00 – 19:00 | Sáb: 9:00 – 14:00</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Dra. Elizabeth Priccillo – Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- MODAL SERVICIOS -->
+  <div id="servicios-modal" class="modal" onclick="closeModalOutside(event, 'servicios-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('servicios-modal')">✕</button>
+      <h2>Nuestros Servicios</h2>
+      <p class="modal-sub">Ofrecemos tratamientos integrales para toda la familia.</p>
+      <div class="modal-servicios">
+        <div class="ms-item">
+          <div class="ms-icon">🦷</div>
+          <div>
+            <h4>Limpieza y Profilaxis</h4>
+            <p>Eliminación de sarro y placa bacteriana. Recomendada cada 6 meses.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">✨</div>
+          <div>
+            <h4>Blanqueamiento Dental</h4>
+            <p>Tratamiento profesional con resultados visibles desde la primera sesión.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">😁</div>
+          <div>
+            <h4>Ortodoncia</h4>
+            <p>Brackets metálicos, cerámicos y alineadores invisibles tipo Invisalign.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">🔬</div>
+          <div>
+            <h4>Implantes Dentales</h4>
+            <p>Implantes de titanio con corona de porcelana. Resultado natural y duradero.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">👶</div>
+          <div>
+            <h4>Odontopediatría</h4>
+            <p>Atención dental para niños desde los 2 años en un ambiente amigable.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">💎</div>
+          <div>
+            <h4>Estética Dental</h4>
+            <p>Carillas de porcelana, coronas y diseño de sonrisa personalizado.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">🛡️</div>
+          <div>
+            <h4>Endodoncia</h4>
+            <p>Tratamiento de conductos para salvar piezas dentales dañadas.</p>
+          </div>
+        </div>
+        <div class="ms-item">
+          <div class="ms-icon">🏥</div>
+          <div>
+            <h4>Cirugía Oral</h4>
+            <p>Extracciones, muelas del juicio y cirugías menores con anestesia local.</p>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary full" onclick="closeModal('servicios-modal'); openModal('contacto-modal')">Agendar una cita</button>
+    </div>
+  </div>
+
+  <!-- MODAL CONTACTO -->
+  <div id="contacto-modal" class="modal" onclick="closeModalOutside(event, 'contacto-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('contacto-modal')">✕</button>
+      <h2>Agendar Cita</h2>
+      <p class="modal-sub">Completa el formulario y te contactaremos a la brevedad.</p>
+      <form class="contacto-form" onsubmit="enviarFormulario(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre completo *</label>
+            <input type="text" placeholder="Tu nombre" required />
+          </div>
+          <div class="form-group">
+            <label>Teléfono *</label>
+            <input type="tel" placeholder="+52 33 0000 0000" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico *</label>
+          <input type="email" placeholder="tucorreo@email.com" required />
+        </div>
+        <div class="form-group">
+          <label>Servicio de interés</label>
+          <select>
+            <option value="">Selecciona un servicio</option>
+            <option>Limpieza Dental</option>
+            <option>Blanqueamiento</option>
+            <option>Ortodoncia</option>
+            <option>Implantes Dentales</option>
+            <option>Odontopediatría</option>
+            <option>Estética Dental</option>
+            <option>Endodoncia</option>
+            <option>Cirugía Oral</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mensaje (opcional)</label>
+          <textarea placeholder="Cuéntanos sobre tu consulta o síntomas..." rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-primary full">Enviar Solicitud</button>
+      </form>
+      <div class="modal-contacto-info">
+        <a href="tel:+523312345678">📞 +52 33 1234 5678</a>
+        <a href="mailto:contacto@draelizabethpriccillo.com">✉️ contacto@draelizabethpriccillo.com</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS TOAST -->
+  <div id="toast" class="toast">✅ ¡Solicitud enviada! Te contactaremos pronto.</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
