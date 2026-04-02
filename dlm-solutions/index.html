@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLM Solutions – Agencia de Inteligencia Artificial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dlm-styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <div class="logo-mark">DLM</div>
+        <div>
+          <span class="logo-name">DLM Solutions</span>
+          <span class="logo-sub">Agencia de IA</span>
+        </div>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+        <li><a href="#" class="btn-nav" onclick="openModal('contacto-modal')">Hablar con nosotros</a></li>
+      </ul>
+      <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-bg-anim">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span> Automatiza tu negocio con IA
+      </div>
+      <h1>Transforma tu negocio<br /><span class="gradient-text">con Inteligencia Artificial</span></h1>
+      <p>En DLM Solutions creamos soluciones de IA personalizadas: páginas web, chatbots para WhatsApp e Instagram, y recepcionistas de voz que trabajan 24/7 por ti.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="openModal('servicios-modal')">Ver Servicios</button>
+        <button class="btn-ghost" onclick="openModal('contacto-modal')">Agendar Demo Gratis</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><strong>24/7</strong><span>Atención automatizada</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><strong>+3</strong><span>Soluciones de IA</span></div>
+        <div class="hstat-sep"></div>
+        <div class="hstat"><strong>100%</strong><span>Personalizado</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-mock">
+        <div class="phone-screen">
+          <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div>
+              <strong>DLM Bot</strong>
+              <span class="online-dot">● En línea</span>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="msg bot">¡Hola! 👋 Soy el asistente de DLM Solutions. ¿En qué puedo ayudarte?</div>
+            <div class="msg user">Quiero info sobre sus servicios</div>
+            <div class="msg bot">¡Claro! Ofrecemos:<br/>🌐 Páginas web<br/>💬 Chatbots IA<br/>📞 Recepcionista de voz<br/><br/>¿Cuál te interesa?</div>
+            <div class="typing"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section class="servicios" id="servicios">
+    <div class="section-header">
+      <span class="section-tag">Lo que hacemos</span>
+      <h2>Nuestros Servicios de IA</h2>
+      <p>Soluciones inteligentes que trabajan por ti mientras te enfocas en hacer crecer tu negocio.</p>
+    </div>
+    <div class="servicios-grid">
+
+      <div class="serv-card" onclick="openModal('web-modal')">
+        <div class="serv-icon-wrap web">🌐</div>
+        <h3>Páginas Web Profesionales</h3>
+        <p>Diseñamos páginas web modernas, rápidas y optimizadas para convertir visitantes en clientes reales.</p>
+        <ul>
+          <li>✓ Diseño a medida</li>
+          <li>✓ Optimización SEO</li>
+          <li>✓ Responsive (móvil y desktop)</li>
+          <li>✓ Integración con IA</li>
+        </ul>
+        <span class="card-cta">Ver detalles →</span>
+      </div>
+
+      <div class="serv-card featured" onclick="openModal('chatbot-modal')">
+        <div class="featured-badge">⭐ Más popular</div>
+        <div class="serv-icon-wrap chat">💬</div>
+        <h3>Chatbot IA para WhatsApp e Instagram</h3>
+        <p>Automatiza tu atención al cliente con IA que responde, vende y agenda citas de forma autónoma.</p>
+        <ul>
+          <li>✓ Respuestas 24/7</li>
+          <li>✓ WhatsApp Business API</li>
+          <li>✓ Instagram DMs automatizados</li>
+          <li>✓ Calificación de leads</li>
+        </ul>
+        <span class="card-cta">Ver detalles →</span>
+      </div>
+
+      <div class="serv-card" onclick="openModal('voz-modal')">
+        <div class="serv-icon-wrap voz">📞</div>
+        <h3>Recepcionista IA de Voz</h3>
+        <p>Un agente de voz con IA que atiende llamadas, agenda citas y resuelve dudas como una persona real.</p>
+        <ul>
+          <li>✓ Voz natural con IA</li>
+          <li>✓ Agenda citas automáticamente</li>
+          <li>✓ Disponible 24/7</li>
+          <li>✓ Sin salarios ni días libres</li>
+        </ul>
+        <span class="card-cta">Ver detalles →</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section class="nosotros" id="nosotros">
+    <div class="nosotros-container">
+      <div class="nosotros-text">
+        <span class="section-tag">Sobre DLM Solutions</span>
+        <h2>Automatizamos negocios con IA de última generación</h2>
+        <p>Somos una agencia especializada en implementar Inteligencia Artificial para pequeñas y medianas empresas. Nuestro objetivo es darte las mismas herramientas que usan las grandes empresas, a un precio accesible.</p>
+        <p>No vendemos tecnología — <strong>vendemos resultados</strong>. Más clientes atendidos, menos tiempo perdido, más ventas cerradas.</p>
+        <div class="nosotros-cards">
+          <div class="ncard">
+            <span>🚀</span>
+            <div><strong>Implementación rápida</strong><p>Tu solución lista en días, no meses.</p></div>
+          </div>
+          <div class="ncard">
+            <span>🎯</span>
+            <div><strong>100% personalizado</strong><p>Adaptado a tu negocio y clientes.</p></div>
+          </div>
+          <div class="ncard">
+            <span>🛠️</span>
+            <div><strong>Soporte continuo</strong><p>Te acompañamos después del lanzamiento.</p></div>
+          </div>
+          <div class="ncard">
+            <span>📈</span>
+            <div><strong>Enfocados en resultados</strong><p>Medimos el impacto real en tu negocio.</p></div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="openModal('contacto-modal')">Agendar consulta gratis</button>
+      </div>
+      <div class="nosotros-visual">
+        <div class="stats-box">
+          <div class="sbox-item"><h3>24/7</h3><p>Atención sin descanso</p></div>
+          <div class="sbox-item"><h3>3x</h3><p>Más leads atendidos</p></div>
+          <div class="sbox-item"><h3>-80%</h3><p>Tiempo en atención manual</p></div>
+          <div class="sbox-item"><h3>+ROI</h3><p>Retorno garantizado</p></div>
+        </div>
+        <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=700&q=80" alt="Inteligencia Artificial" class="nosotros-img" />
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section class="proceso" id="proceso">
+    <div class="section-header">
+      <span class="section-tag">Cómo trabajamos</span>
+      <h2>De la idea al resultado en 4 pasos</h2>
+    </div>
+    <div class="proceso-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon">🎯</div>
+        <h3>Diagnóstico</h3>
+        <p>Analizamos tu negocio, tus clientes y tus procesos para identificar qué automatizar primero.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon">🛠️</div>
+        <h3>Desarrollo</h3>
+        <p>Creamos y configuramos tu solución de IA personalizada con tu tono y marca.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon">🧪</div>
+        <h3>Pruebas</h3>
+        <p>Probamos exhaustivamente cada flujo antes del lanzamiento para garantizar calidad.</p>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-icon">🚀</div>
+        <h3>Lanzamiento</h3>
+        <p>Lanzamos tu solución y te damos capacitación + soporte continuo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2>¿Listo para automatizar tu negocio?</h2>
+      <p>Agenda una demo gratuita y ve en vivo cómo la IA puede transformar tu empresa.</p>
+      <div class="cta-btns">
+        <button class="btn-primary" onclick="openModal('contacto-modal')">Demo Gratuita</button>
+        <a href="https://wa.me/523318314332" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="logo-mark sm">DLM</div>
+        <div>
+          <strong>DLM Solutions</strong>
+          <p>Agencia de Inteligencia Artificial</p>
+          <p>Guadalajara, México</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#" onclick="openModal('web-modal')">Páginas Web</a></li>
+          <li><a href="#" onclick="openModal('chatbot-modal')">Chatbot WhatsApp / Instagram</a></li>
+          <li><a href="#" onclick="openModal('voz-modal')">Recepcionista IA de Voz</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Contacto</h4>
+        <p>📞 <a href="tel:+523318314332">+52 33 1831 4332</a></p>
+        <p>✉️ <a href="mailto:DLMSolutionssoporte@gmail.com">DLMSolutionssoporte@gmail.com</a></p>
+        <p>📸 <a href="https://instagram.com/DLMSolutions" target="_blank">@DLMSolutions</a></p>
+        <p>💬 <a href="https://wa.me/523318314332" target="_blank">WhatsApp directo</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 DLM Solutions – Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- MODAL SERVICIOS GENERAL -->
+  <div id="servicios-modal" class="modal" onclick="closeModalOutside(event,'servicios-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('servicios-modal')">✕</button>
+      <h2>Nuestros Servicios</h2>
+      <p class="modal-sub">Elige la solución que tu negocio necesita.</p>
+      <div class="modal-serv-list">
+        <div class="msl-item" onclick="closeModal('servicios-modal'); openModal('web-modal')">
+          <span class="msl-icon">🌐</span>
+          <div><strong>Páginas Web Profesionales</strong><p>Sitios modernos, rápidos y optimizados para vender.</p></div>
+          <span class="arrow">→</span>
+        </div>
+        <div class="msl-item" onclick="closeModal('servicios-modal'); openModal('chatbot-modal')">
+          <span class="msl-icon">💬</span>
+          <div><strong>Chatbot IA – WhatsApp e Instagram</strong><p>Atención automática 24/7 que convierte leads.</p></div>
+          <span class="arrow">→</span>
+        </div>
+        <div class="msl-item" onclick="closeModal('servicios-modal'); openModal('voz-modal')">
+          <span class="msl-icon">📞</span>
+          <div><strong>Recepcionista IA de Voz</strong><p>Agente de voz que atiende llamadas solo.</p></div>
+          <span class="arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PÁGINAS WEB -->
+  <div id="web-modal" class="modal" onclick="closeModalOutside(event,'web-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('web-modal')">✕</button>
+      <div class="modal-serv-header web">🌐</div>
+      <h2>Páginas Web Profesionales</h2>
+      <p class="modal-sub">Tu presencia digital, diseñada para convertir.</p>
+      <div class="modal-features">
+        <div class="mf-item"><span>✓</span><p><strong>Diseño personalizado:</strong> Adaptado a tu marca, colores e identidad.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Optimización SEO:</strong> Para que te encuentren en Google.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Responsive:</strong> Perfecta en celular, tablet y computadora.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Velocidad:</strong> Carga rápida para no perder clientes.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Integración IA:</strong> Chatbot integrado directamente en tu sitio.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Formularios y CTA:</strong> Captura leads desde el primer día.</p></div>
+      </div>
+      <button class="btn-primary full" onclick="closeModal('web-modal'); openModal('contacto-modal')">Quiero mi página web</button>
+    </div>
+  </div>
+
+  <!-- MODAL CHATBOT -->
+  <div id="chatbot-modal" class="modal" onclick="closeModalOutside(event,'chatbot-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('chatbot-modal')">✕</button>
+      <div class="modal-serv-header chat">💬</div>
+      <h2>Chatbot IA para WhatsApp e Instagram</h2>
+      <p class="modal-sub">Tu negocio atendiendo clientes mientras duermes.</p>
+      <div class="modal-features">
+        <div class="mf-item"><span>✓</span><p><strong>Respuestas 24/7:</strong> Nunca pierdas un lead por no contestar a tiempo.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>WhatsApp Business API:</strong> Integración oficial y segura.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Instagram DMs:</strong> Responde mensajes directos automáticamente.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Agenda citas:</strong> El bot coordina horarios sin intervención humana.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Calificación de leads:</strong> Filtra y prioriza a tus mejores prospectos.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Tono personalizado:</strong> Habla como tu marca, no como un robot genérico.</p></div>
+      </div>
+      <button class="btn-primary full" onclick="closeModal('chatbot-modal'); openModal('contacto-modal')">Quiero mi chatbot</button>
+    </div>
+  </div>
+
+  <!-- MODAL VOZ -->
+  <div id="voz-modal" class="modal" onclick="closeModalOutside(event,'voz-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('voz-modal')">✕</button>
+      <div class="modal-serv-header voz">📞</div>
+      <h2>Recepcionista IA de Voz</h2>
+      <p class="modal-sub">Atiende cada llamada, sin falta, sin cansancio.</p>
+      <div class="modal-features">
+        <div class="mf-item"><span>✓</span><p><strong>Voz natural con IA:</strong> Conversación fluida, casi indistinguible de una persona real.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Agenda citas:</strong> Revisa disponibilidad y confirma citas automáticamente.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Responde preguntas:</strong> Precios, horarios, ubicación, servicios y más.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Sin salarios:</strong> Trabaja 24/7 por una fracción del costo de un empleado.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Escalable:</strong> Atiende múltiples llamadas simultáneas sin espera.</p></div>
+        <div class="mf-item"><span>✓</span><p><strong>Reportes:</strong> Resumen de llamadas y métricas de atención.</p></div>
+      </div>
+      <button class="btn-primary full" onclick="closeModal('voz-modal'); openModal('contacto-modal')">Quiero mi recepcionista IA</button>
+    </div>
+  </div>
+
+  <!-- MODAL CONTACTO -->
+  <div id="contacto-modal" class="modal" onclick="closeModalOutside(event,'contacto-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('contacto-modal')">✕</button>
+      <h2>Agendar Demo Gratis</h2>
+      <p class="modal-sub">Cuéntanos sobre tu negocio y te mostramos cómo la IA puede ayudarte.</p>
+      <form class="contacto-form" onsubmit="enviarFormulario(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" placeholder="Tu nombre" required />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp *</label>
+            <input type="tel" placeholder="+52 33 0000 0000" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico *</label>
+          <input type="email" placeholder="tucorreo@gmail.com" required />
+        </div>
+        <div class="form-group">
+          <label>¿Qué servicio te interesa?</label>
+          <select>
+            <option value="">Selecciona un servicio</option>
+            <option>Página Web Profesional</option>
+            <option>Chatbot para WhatsApp</option>
+            <option>Chatbot para Instagram</option>
+            <option>Recepcionista IA de Voz</option>
+            <option>Todo el paquete</option>
+            <option>Tengo dudas, quiero asesoría</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>¿A qué se dedica tu negocio?</label>
+          <textarea placeholder="Ej: Clínica dental, restaurante, consultora..." rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-primary full">Enviar – Quiero mi Demo</button>
+      </form>
+      <div class="modal-contacto-info">
+        <a href="tel:+523318314332">📞 +52 33 1831 4332</a>
+        <a href="https://instagram.com/DLMSolutions" target="_blank">📸 @DLMSolutions</a>
+        <a href="https://wa.me/523318314332" target="_blank">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">✅ ¡Mensaje enviado! Te contactaremos pronto.</div>
+
+  <script src="dlm-script.js"></script>
+</body>
+</html>
