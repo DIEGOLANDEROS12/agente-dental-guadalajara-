@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DLM Solutions – Automatización Inteligente de Comunicaciones</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-dlm">DLM</span>
+        <span class="logo-sol">Solutions</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#precios">Precios</a></li>
+        <li><a href="#combos">Combos</a></li>
+        <li><a href="#comparativa">Comparativa</a></li>
+        <li><a href="#contacto" class="btn-nav">Agendar Demo</a></li>
+      </ul>
+      <button class="hamburger" onclick="toggleMenu()">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <p class="hero-tag">AUTOMATIZACIÓN INTELIGENTE DE COMUNICACIONES</p>
+        <h1 class="hero-title">
+          <span class="hero-dlm">DLM</span><br />
+          <em class="hero-sol">Solutions</em>
+        </h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">Páginas web · Chatbot WhatsApp · Recepcionista AI de Voz</p>
+        <p class="hero-desc">Todo como membresía mensual. Sin contratos. Sin complicaciones.</p>
+        <div class="hero-cards">
+          <div class="hero-card">
+            <span>🌐</span>
+            <div>
+              <strong>Páginas Web</strong>
+              <p>Presencia digital 24/7</p>
+            </div>
+          </div>
+          <div class="hero-card">
+            <span>💬</span>
+            <div>
+              <strong>Chatbot WhatsApp</strong>
+              <p>Atención automática</p>
+            </div>
+          </div>
+          <div class="hero-card">
+            <span>🎙️</span>
+            <div>
+              <strong>Recepcionista AI</strong>
+              <p>Voz conversacional</p>
+            </div>
+          </div>
+        </div>
+        <div class="hero-btns">
+          <a href="#contacto" class="btn-gold">Agendar Demo Gratis</a>
+          <a href="#precios" class="btn-outline-gold">Ver Precios</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ¿A QUÉ NOS DEDICAMOS? -->
+  <section class="dedicamos" id="servicios">
+    <div class="section-container">
+      <h2>¿A qué nos dedicamos?</h2>
+      <p class="section-sub">Automatizamos la comunicación y presencia digital de negocios con tecnología de inteligencia artificial.</p>
+      <div class="gold-line"></div>
+      <div class="dedicamos-grid">
+        <div class="ded-card web">
+          <div class="ded-header web-h">
+            <span>🌐</span>
+            <h3>Páginas Web</h3>
+          </div>
+          <p>Diseñamos y mantenemos tu sitio web profesional con IA. Hosting, dominio y actualizaciones incluidas en tu membresía mensual.</p>
+          <span class="ded-tag web-tag">Membresía mensual sin contrato</span>
+        </div>
+        <div class="ded-card chat">
+          <div class="ded-header chat-h">
+            <span>💬</span>
+            <h3>Chatbot WhatsApp</h3>
+          </div>
+          <p>Automatizamos tu WhatsApp Business para agendar citas, responder preguntas y recuperar pacientes inactivos — las 24 horas.</p>
+          <span class="ded-tag chat-tag">Membresía mensual sin contrato</span>
+        </div>
+        <div class="ded-card voz">
+          <div class="ded-header voz-h">
+            <span>🎙️</span>
+            <h3>Recepcionista AI</h3>
+          </div>
+          <p>Asistente de voz que atiende llamadas, agenda citas y da información de tu negocio sin que nadie tenga que contestar el teléfono.</p>
+          <span class="ded-tag voz-tag">Membresía mensual sin contrato</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRECIOS PÁGINAS WEB -->
+  <section class="precios-section dark" id="precios">
+    <div class="section-container">
+      <div class="precio-header">
+        <h2><span>🌐</span> Páginas Web — Membresía Mensual</h2>
+        <p>Hosting · Dominio · Diseño IA · Actualizaciones incluidas · Precios MXN (USD ref. $18)</p>
+      </div>
+      <div class="planes-grid">
+        <div class="plan-card">
+          <div class="plan-tier">BÁSICO</div>
+          <h3>Presencia</h3>
+          <p class="plan-setup">$1,500 MXN ($83 USD) instalación única</p>
+          <div class="plan-price">$1,500</div>
+          <p class="plan-period">MXN ($83 USD) / mes</p>
+          <!-- PRIMER MES DESCUENTO -->
+          <div class="descuento-badge">
+            🎁 Primer mes solo <strong>$150 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Página completa 5–7 secciones</li>
+            <li>✓ Dominio .com incluido</li>
+            <li>✓ Hosting incluido</li>
+            <li>✓ Diseño profesional con IA</li>
+            <li>✓ 1 actualización de texto/mes</li>
+            <li class="disabled">— Formulario contacto/citas</li>
+            <li class="disabled">— Google Analytics</li>
+            <li class="disabled">— SEO configurado</li>
+          </ul>
+          <a href="#contacto" class="btn-plan" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card featured">
+          <div class="plan-featured-badge">PRO ★ MÁS POPULAR</div>
+          <div class="plan-tier light">PRO</div>
+          <h3>Negocio</h3>
+          <p class="plan-setup">$2,000 MXN ($111 USD) instalación única</p>
+          <div class="plan-price">$2,500</div>
+          <p class="plan-period">MXN ($139 USD) / mes</p>
+          <div class="descuento-badge light">
+            🎁 Primer mes solo <strong>$150 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Todo del plan Presencia</li>
+            <li>✓ Formulario de citas/contacto</li>
+            <li>✓ Google Analytics</li>
+            <li>✓ SEO básico configurado</li>
+            <li>✓ 3 actualizaciones/mes</li>
+            <li>✓ Optimizado para móvil</li>
+            <li class="disabled">— Integración chatbot/WA</li>
+          </ul>
+          <a href="#contacto" class="btn-plan light" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-tier">PREMIUM</div>
+          <h3>Digital</h3>
+          <p class="plan-setup">$3,000 MXN ($167 USD) instalación única</p>
+          <div class="plan-price">$4,000</div>
+          <p class="plan-period">MXN ($222 USD) / mes</p>
+          <div class="descuento-badge">
+            🎁 Primer mes solo <strong>$150 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Todo del plan Negocio</li>
+            <li>✓ Integración chatbot WA</li>
+            <li>✓ Botón WhatsApp flotante</li>
+            <li>✓ Reseñas Google integradas</li>
+            <li>✓ Actualizaciones ilimitadas</li>
+            <li>✓ Reporte mensual de visitas</li>
+          </ul>
+          <a href="#contacto" class="btn-plan" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+      </div>
+      <p class="planes-footer">Sin contratos · Sin letra chica · Si cancelas, te entregamos el acceso a tu diseño</p>
+    </div>
+  </section>
+
+  <!-- PRECIOS CHATBOT -->
+  <section class="precios-section beige">
+    <div class="section-container">
+      <div class="precio-header dark-text">
+        <h2><span>💬</span> Chatbot WhatsApp — Membresía Mensual</h2>
+        <p>Automatización completa de WhatsApp e Instagram · Precios MXN (USD ref. $18)</p>
+      </div>
+      <div class="planes-grid">
+        <div class="plan-card beige-card">
+          <div class="plan-tier gold">BÁSICO</div>
+          <h3 class="dark">Esencial</h3>
+          <p class="plan-setup dark">$1,500 MXN ($83 USD) instalación única</p>
+          <div class="plan-price dark">$2,200</div>
+          <p class="plan-period dark">MXN ($122 USD) / mes</p>
+          <div class="descuento-badge gold-badge">
+            🎁 Primer mes solo <strong>$250 MXN</strong>
+          </div>
+          <div class="plan-divider gold-divider"></div>
+          <ul class="plan-features dark">
+            <li>✓ Chatbot WhatsApp Business</li>
+            <li>✓ Respuestas automáticas 24/7</li>
+            <li>✓ Agenda de citas automática</li>
+            <li>✓ Preguntas frecuentes</li>
+            <li>✓ Soporte por WhatsApp</li>
+            <li class="disabled">— Recordatorios automáticos</li>
+            <li class="disabled">— Instagram & Google Calendar</li>
+          </ul>
+          <a href="#contacto" class="btn-plan gold-btn" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card featured">
+          <div class="plan-featured-badge">PRO ★ MÁS POPULAR</div>
+          <div class="plan-tier light">PRO</div>
+          <h3>Premier</h3>
+          <p class="plan-setup">$2,000 MXN ($111 USD) instalación única</p>
+          <div class="plan-price">$3,500</div>
+          <p class="plan-period">MXN ($194 USD) / mes</p>
+          <div class="descuento-badge light">
+            🎁 Primer mes solo <strong>$250 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Todo del plan Esencial</li>
+            <li>✓ Recordatorios automáticos</li>
+            <li>✓ Seguimiento post-cita</li>
+            <li>✓ Reporte mensual</li>
+            <li>✓ Recuperación de inactivos</li>
+            <li>✓ Soporte prioritario</li>
+            <li class="disabled">— Instagram & Google Calendar</li>
+          </ul>
+          <a href="#contacto" class="btn-plan light" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card beige-card">
+          <div class="plan-tier gold">PREMIUM</div>
+          <h3 class="dark">Élite</h3>
+          <p class="plan-setup dark">$2,500 MXN ($139 USD) instalación única</p>
+          <div class="plan-price dark">$5,500</div>
+          <p class="plan-period dark">MXN ($306 USD) / mes</p>
+          <div class="descuento-badge gold-badge">
+            🎁 Primer mes solo <strong>$250 MXN</strong>
+          </div>
+          <div class="plan-divider gold-divider"></div>
+          <ul class="plan-features dark">
+            <li>✓ Todo del plan Premier</li>
+            <li>✓ Chatbot en Instagram</li>
+            <li>✓ Google Calendar integrado</li>
+            <li>✓ Historial del cliente</li>
+            <li>✓ Campañas de reactivación</li>
+            <li>✓ Soporte dedicado</li>
+          </ul>
+          <a href="#contacto" class="btn-plan gold-btn" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+      </div>
+      <p class="planes-footer dark-text">Configuración personalizada incluida · Sin permanencia · Precios MXN (USD ref. $18)</p>
+    </div>
+  </section>
+
+  <!-- PRECIOS RECEPCIONISTA VOZ -->
+  <section class="precios-section dark">
+    <div class="section-container">
+      <div class="precio-header">
+        <h2><span>🎙️</span> Recepcionista AI de Voz — Membresía Mensual</h2>
+        <p>Asistente telefónico disponible 24/7 · Precios MXN (USD ref. $18)</p>
+      </div>
+      <div class="planes-grid">
+        <div class="plan-card">
+          <div class="plan-tier">STARTER</div>
+          <h3>Esencial</h3>
+          <p class="plan-setup">$9,000 MXN ($500 USD) instalación única</p>
+          <div class="plan-price">$5,346</div>
+          <p class="plan-period">MXN ($297 USD) / mes</p>
+          <div class="descuento-badge">
+            🎁 Primer mes solo <strong>$650 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Asistente de voz personalizado</li>
+            <li>✓ Agenda citas 24/7</li>
+            <li>✓ 1 número dedicado</li>
+            <li>✓ Hasta 300 min incluidos</li>
+            <li>✓ Reporte mensual</li>
+            <li class="disabled">— Integración Google Calendar</li>
+            <li class="disabled">— Voz clonada del negocio</li>
+          </ul>
+          <p class="plan-extra">Min adicionales: $6.30 MXN/min</p>
+          <a href="#contacto" class="btn-plan" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card featured">
+          <div class="plan-featured-badge">PRO ★ MÁS POPULAR</div>
+          <div class="plan-tier light">PRO</div>
+          <h3>Premier</h3>
+          <p class="plan-setup">$14,400 MXN ($800 USD) instalación única</p>
+          <div class="plan-price">$10,746</div>
+          <p class="plan-period">MXN ($597 USD) / mes</p>
+          <div class="descuento-badge light">
+            🎁 Primer mes solo <strong>$1,750 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Todo del plan Esencial</li>
+            <li>✓ Google Calendar integrado</li>
+            <li>✓ Voz clonada del negocio</li>
+            <li>✓ Hasta 800 min incluidos</li>
+            <li>✓ Ajustes mensuales</li>
+            <li>✓ Soporte prioritario WA</li>
+            <li class="disabled">— Múltiples sucursales</li>
+          </ul>
+          <p class="plan-extra">Min adicionales: $5.40 MXN/min</p>
+          <a href="#contacto" class="btn-plan light" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+
+        <div class="plan-card">
+          <div class="plan-tier">AGENCY</div>
+          <h3>Élite</h3>
+          <p class="plan-setup">$27,000 MXN ($1,500 USD) instalación única</p>
+          <div class="plan-price">$21,600</div>
+          <p class="plan-period">MXN ($1,200 USD) / mes</p>
+          <div class="descuento-badge">
+            🎁 Primer mes solo <strong>$4,350 MXN</strong>
+          </div>
+          <div class="plan-divider"></div>
+          <ul class="plan-features">
+            <li>✓ Todo del plan Premier</li>
+            <li>✓ Múltiples sucursales</li>
+            <li>✓ Dashboard avanzado</li>
+            <li>✓ Hasta 2,000 min incluidos</li>
+            <li>✓ Integraciones custom</li>
+            <li>✓ Gerente de cuenta</li>
+          </ul>
+          <p class="plan-extra">Min adicionales: $4.50 MXN/min</p>
+          <a href="#contacto" class="btn-plan" onclick="openModal('contacto-modal')">Empezar</a>
+        </div>
+      </div>
+      <p class="planes-footer">Minutos adicionales: $6.30 / $5.40 / $4.50 MXN por min · Sin contratos de permanencia</p>
+    </div>
+  </section>
+
+  <!-- COMBOS -->
+  <section class="combos beige" id="combos">
+    <div class="section-container">
+      <div class="precio-header dark-text">
+        <h2>Paquetes Combo — Ahorra combinando servicios</h2>
+        <p>Al contratar 2 o más servicios obtienes descuento y un solo punto de contacto para todo</p>
+      </div>
+      <div class="combos-grid">
+        <div class="combo-card border-green">
+          <div class="combo-tier">WEB NEGOCIO + CHATBOT PREMIER</div>
+          <h3>Combo Clínica Pro</h3>
+          <div class="combo-ahorro green">$800 MXN de ahorro · 13% descuento</div>
+          <p class="combo-normal">Normal: $6,000 MXN/mes</p>
+          <div class="combo-price">$5,200 MXN</div>
+          <p class="combo-period">MXN ($289 USD) /mes · $3,500 MXN instalación única</p>
+          <div class="combo-divider"></div>
+          <ul class="combo-features">
+            <li>✓ Página web plan Negocio</li>
+            <li>✓ Chatbot WhatsApp plan Premier</li>
+            <li>✓ Recordatorios automáticos</li>
+            <li>✓ Formulario de citas integrado</li>
+            <li>✓ Recuperación de pacientes inactivos</li>
+            <li>✓ Reporte mensual unificado</li>
+          </ul>
+          <a href="#contacto" class="btn-combo green-btn" onclick="openModal('contacto-modal')">Contratar Combo</a>
+        </div>
+
+        <div class="combo-card border-blue">
+          <div class="combo-tier">WEB DIGITAL + CHATBOT ÉLITE</div>
+          <h3>Combo Presencia Digital</h3>
+          <div class="combo-ahorro blue">$1,300 MXN de ahorro · 14% descuento</div>
+          <p class="combo-normal">Normal: $9,500 MXN/mes</p>
+          <div class="combo-price">$8,200 MXN</div>
+          <p class="combo-period">MXN ($456 USD) /mes · $4,500 MXN instalación única</p>
+          <div class="combo-divider"></div>
+          <ul class="combo-features">
+            <li>✓ Página web con integración Instagram</li>
+            <li>✓ Chatbot en WhatsApp e Instagram</li>
+            <li>✓ Google Calendar integrado</li>
+            <li>✓ Campañas de reactivación</li>
+            <li>✓ Historial de pacientes</li>
+            <li>✓ Reporte mensual unificado</li>
+          </ul>
+          <a href="#contacto" class="btn-combo blue-btn" onclick="openModal('contacto-modal')">Contratar Combo</a>
+        </div>
+
+        <div class="combo-card border-purple featured-combo">
+          <div class="combo-tier light">WEB + CHATBOT + RECEPCIONISTA AI</div>
+          <h3 class="white">Combo Total DLM</h3>
+          <div class="combo-ahorro purple">$3,246 MXN de ahorro · 17% descuento</div>
+          <p class="combo-normal white">Normal: $18,746 MXN/mes</p>
+          <div class="combo-price white">$15,500 MXN</div>
+          <p class="combo-period white">MXN ($861 USD) /mes · $5,500 MXN instalación única</p>
+          <div class="combo-divider"></div>
+          <ul class="combo-features white">
+            <li>✓ Página web plan Digital</li>
+            <li>✓ Chatbot WhatsApp plan Premier</li>
+            <li>✓ Recepcionista AI de voz 24/7</li>
+            <li>✓ Agenda por WhatsApp y teléfono</li>
+            <li>✓ Reporte unificado todos los canales</li>
+            <li>✓ 1 punto de contacto para todo</li>
+          </ul>
+          <a href="#contacto" class="btn-combo purple-btn" onclick="openModal('contacto-modal')">Contratar Combo</a>
+        </div>
+      </div>
+      <p class="planes-footer dark-text">Todos los combos incluyen: configuración personalizada · soporte prioritario · reporte mensual unificado</p>
+    </div>
+  </section>
+
+  <!-- ¿POR QUÉ CONTRATAR MÁS? -->
+  <section class="porque dark">
+    <div class="section-container">
+      <h2>¿Por qué contratar más de un servicio?</h2>
+      <p class="section-sub light">Cada servicio por separado es poderoso. Juntos, son imparables.</p>
+      <div class="porque-grid">
+        <div class="porque-card">
+          <h4>🔗 Todo conectado</h4>
+          <p>Tu página web, chatbot y recepcionista de voz trabajan juntos. Un paciente visita tu web → escribe por WA → llama → todo queda en un solo sistema.</p>
+        </div>
+        <div class="porque-card">
+          <h4>📊 Un solo reporte</h4>
+          <p>En lugar de revisar 3 plataformas diferentes, recibes un reporte mensual unificado con métricas de visitas web, conversaciones y llamadas.</p>
+        </div>
+        <div class="porque-card">
+          <h4>💰 Ahorro real</h4>
+          <p>Al combinar servicios obtienes hasta 17% de descuento. Con el Combo Total DLM ahorras $3,246 MXN al mes vs contratar cada servicio por separado.</p>
+        </div>
+        <div class="porque-card">
+          <h4>🎯 Un solo proveedor</h4>
+          <p>No más lidiar con varias empresas. DLM Solutions es tu único punto de contacto para toda tu presencia digital y comunicación automática.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARATIVA -->
+  <section class="comparativa beige" id="comparativa">
+    <div class="section-container">
+      <h2 class="dark-h">¿Por qué DLM Solutions vs lo tradicional?</h2>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Lo tradicional</th>
+            <th class="dlm-col">DLM Solutions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Recepcionista humana</td>
+            <td>$8,000–15,000 MXN/mes</td>
+            <td class="dlm-val">Desde $2,200 MXN/mes</td>
+          </tr>
+          <tr class="alt">
+            <td>Horario de atención</td>
+            <td>8 hrs / día</td>
+            <td class="dlm-val">24/7 · 365 días</td>
+          </tr>
+          <tr>
+            <td>Página web agencia</td>
+            <td>$15,000–50,000 pago único</td>
+            <td class="dlm-val">Desde $1,500 MXN/mes</td>
+          </tr>
+          <tr class="alt">
+            <td>Cancelaciones de cita</td>
+            <td>Sin recordatorios</td>
+            <td class="dlm-val">Recordatorios automáticos</td>
+          </tr>
+          <tr>
+            <td>Pacientes fuera de horario</td>
+            <td>Se pierden</td>
+            <td class="dlm-val">Se atienden al instante</td>
+          </tr>
+          <tr class="alt">
+            <td>Informes de gestión</td>
+            <td>Manual / inexistente</td>
+            <td class="dlm-val">Reporte mensual automático</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="comp-stats">
+        <div class="cstat"><strong>3x</strong><span>más barato que<br/>una recepcionista</span></div>
+        <div class="cstat"><strong>24/7</strong><span>disponibilidad<br/>completa</span></div>
+        <div class="cstat"><strong>17%</strong><span>descuento por<br/>combo de servicios</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA / CONTACTO -->
+  <section class="cta-section dark" id="contacto">
+    <div class="cta-inner">
+      <div class="cta-text">
+        <h2>¿LISTO PARA<br/>CRECER?</h2>
+        <div class="hero-divider"></div>
+        <p>Agenda una demo de 20 minutos y te mostramos todo funcionando en vivo.</p>
+        <div class="cta-contact">
+          <p>✉️ <a href="mailto:dlmsolutionssoporte@gmail.com">dlmsolutionssoporte@gmail.com</a></p>
+          <p>💬 <a href="https://wa.me/523318314332">WhatsApp: +52 (33) 1831-4332</a></p>
+          <p>📸 <a href="https://instagram.com/DLMSolutions" target="_blank">@DLMSolutions</a></p>
+        </div>
+        <div class="cta-btns">
+          <button class="btn-gold" onclick="openModal('contacto-modal')">Agendar Demo Gratis</button>
+          <a href="https://wa.me/523318314332" target="_blank" class="btn-whatsapp">💬 WhatsApp</a>
+        </div>
+      </div>
+      <div class="cta-logo">
+        <em class="cta-dlm-sol">DLM Solutions</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <span class="logo-dlm">DLM</span> <em class="logo-sol">Solutions</em>
+        <p>Automatización Inteligente de Comunicaciones</p>
+      </div>
+      <div>
+        <h4>Servicios</h4>
+        <ul>
+          <li><a href="#precios">Páginas Web</a></li>
+          <li><a href="#precios">Chatbot WhatsApp</a></li>
+          <li><a href="#precios">Recepcionista AI de Voz</a></li>
+          <li><a href="#combos">Paquetes Combo</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>📞 <a href="tel:+523318314332">+52 33 1831 4332</a></p>
+        <p>✉️ <a href="mailto:dlmsolutionssoporte@gmail.com">dlmsolutionssoporte@gmail.com</a></p>
+        <p>📸 <a href="https://instagram.com/DLMSolutions" target="_blank">@DLMSolutions</a></p>
+        <p>💬 <a href="https://wa.me/523318314332" target="_blank">WhatsApp directo</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 DLM Solutions · Todo como membresía mensual, sin contratos de permanencia</p>
+    </div>
+  </footer>
+
+  <!-- MODAL CONTACTO -->
+  <div id="contacto-modal" class="modal" onclick="closeModalOutside(event,'contacto-modal')">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal('contacto-modal')">✕</button>
+      <h2>Agendar Demo Gratis</h2>
+      <p class="modal-sub">Demo de 20 minutos — te mostramos todo funcionando en vivo.</p>
+      <form class="contacto-form" onsubmit="enviarFormulario(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre *</label>
+            <input type="text" placeholder="Tu nombre" required />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp *</label>
+            <input type="tel" placeholder="+52 33 0000 0000" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Correo electrónico *</label>
+          <input type="email" placeholder="tucorreo@gmail.com" required />
+        </div>
+        <div class="form-group">
+          <label>¿Qué servicio te interesa?</label>
+          <select>
+            <option value="">Selecciona un servicio</option>
+            <option>Página Web – Presencia ($1,500/mes)</option>
+            <option>Página Web – Negocio ($2,500/mes)</option>
+            <option>Página Web – Digital ($4,000/mes)</option>
+            <option>Chatbot WA – Esencial ($2,200/mes)</option>
+            <option>Chatbot WA – Premier ($3,500/mes)</option>
+            <option>Chatbot WA – Élite ($5,500/mes)</option>
+            <option>Recepcionista AI – Esencial ($5,346/mes)</option>
+            <option>Recepcionista AI – Premier ($10,746/mes)</option>
+            <option>Recepcionista AI – Élite ($21,600/mes)</option>
+            <option>Combo Clínica Pro ($5,200/mes)</option>
+            <option>Combo Presencia Digital ($8,200/mes)</option>
+            <option>Combo Total DLM ($15,500/mes)</option>
+            <option>Tengo dudas, quiero asesoría</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>¿A qué se dedica tu negocio?</label>
+          <textarea placeholder="Ej: Clínica dental, restaurante, despacho..." rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-gold full">Enviar – Quiero mi Demo</button>
+      </form>
+      <div class="modal-contact-links">
+        <a href="tel:+523318314332">📞 +52 33 1831 4332</a>
+        <a href="https://instagram.com/DLMSolutions" target="_blank">📸 @DLMSolutions</a>
+        <a href="https://wa.me/523318314332" target="_blank">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">✅ ¡Solicitud enviada! Te contactamos pronto.</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
