@@ -1,53 +1,102 @@
-# Mi Negocio — Diego Landeros
+# Mi Negocio — DLM Solutions
 
-## Quién soy
-- **Nombre:** Diego Landeros
+## Identidad
+- **Nombre:** DLM Solutions
+- **Dueño:** Diego Landeros
 - **Email:** landerosdiego164@gmail.com
-- **Teléfono:** +52 XXXXX X4332 (verificado en Twilio 2FA)
-- **País:** México (Guadalajara, Jalisco)
+- **Instagram:** @DLM__solutions
+- **Página web:** https://diegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/
+- **Dominio:** Pendiente comprar
 - **n8n Cloud:** diegolanderos.app.n8n.cloud
+- **Equipo:** Solo Diego + Claude
 
-## Qué hago
-Creo y vendo **sistemas de automatización con IA** para clínicas dentales y negocios de salud/estética en Guadalajara.
+## Qué vendemos
+Sistemas de automatización con IA para clínicas dentales en Guadalajara:
+- Chatbot WhatsApp/Instagram con IA
+- Páginas web profesionales
+- Recepcionista AI de voz
+- Todo en membresía mensual
 
-El servicio incluye:
-- Asistente virtual de WhatsApp/Instagram (agente IA que agenda citas)
-- Página web profesional para la clínica
-- CRM automático en Google Sheets
-- Recordatorios automáticos de cita
-- Integración con Google Calendar
+## Mercado objetivo
+- Clínicas dentales en Guadalajara (por ahora solo dentales)
+- Meta: 10–20 clientes en 3 meses
+- Lista de 50 prospectos en `01_50_negocios_opening_lines.md`
 
-## Modelo de negocio
-- **Servicio:** Setup del sistema completo para una clínica
-- **Mercado objetivo:** 50 clínicas dentales/faciales en Guadalajara (lista en 01_50_negocios_opening_lines.md)
-- **Estrategia de prospección:** WhatsApp/Instagram DM con opening lines personalizadas
-- **Propuesta de valor:** Reemplazar/complementar recepcionista con IA a fracción del costo
+---
 
-## Clientes Activos
+## Precios y Paquetes
 
-### Clínica Dental Río Nilo — Dr. Josue
-- **Estado:** En desarrollo
-- **Workflow:** Por crear (basado en 06_marcela_smile_design.json)
-- **Web:** https://diegolanderos12.github.io/agente-dental-guadalajara-/ (ya actualizada con su nombre)
-- **Notas:** Doctor se llama Josue, clínica "Río Nilo"
+### 🌐 Páginas Web — Membresía Mensual
+| Plan | Instalación | Mensualidad |
+|---|---|---|
+| Básico — Presencia | $1,500 MXN ($83 USD) | $1,500 MXN/mes ($83 USD) |
+| **Pro — Negocio ⭐ MÁS POPULAR** | $2,000 MXN ($111 USD) | **$2,500 MXN/mes ($139 USD)** |
+| Premium — Digital | $3,000 MXN ($167 USD) | $4,000 MXN/mes ($222 USD) |
 
-### Smile Design Studio Guadalajara (Demo/Template)
-- **Estado:** Workflow funcional
-- **Agente:** Marcela
-- **Webhook:** /smile-design
-- **Twilio:** Sandbox configurado, límite de 5 mensajes diarios (cuenta trial)
-- **Sheets:** https://docs.google.com/spreadsheets/d/10D2JPQEAkqazj64_LPYvsYNomxdDzcayQZefyHtnwoA/edit
+**Incluye:** Hosting · Dominio .com · Diseño IA · Actualizaciones
 
-## Tecnologías que uso
-- n8n Cloud (automatización)
-- OpenAI GPT-4o (IA)
-- Twilio WhatsApp Sandbox (mensajería)
-- Google Sheets + Calendar (datos y agenda)
-- GitHub Pages (páginas web)
-- Git para versionar todo
+- **Presencia:** Página 5–7 secciones, dominio, hosting, diseño IA, 1 actualización/mes
+- **Negocio:** Todo Presencia + formulario citas, Google Analytics, SEO básico, 3 actualizaciones/mes, optimizado móvil
+- **Digital:** Todo Negocio + integración chatbot WA, botón WhatsApp flotante, reseñas Google, actualizaciones ilimitadas, reporte mensual visitas
 
-## Preferencias de trabajo
-- Quiere soluciones listas para pegar (JSON completo, no pasos manuales)
-- Prefiere que los errores se corrijan directo en el archivo, no instrucciones
-- Le gusta tener todo documentado y versionado en Git
-- Idioma: Español siempre
+---
+
+### 💬 Chatbot WhatsApp — Membresía Mensual
+| Plan | Instalación | Mensualidad |
+|---|---|---|
+| Básico — Esencial | $1,500 MXN ($83 USD) | $2,200 MXN/mes ($122 USD) |
+| **Pro — Premier ⭐ MÁS POPULAR** | $2,000 MXN ($111 USD) | **$3,500 MXN/mes ($194 USD)** |
+| Premium — Élite | $2,500 MXN ($139 USD) | $5,500 MXN/mes ($306 USD) |
+
+**Incluye:** Configuración personalizada · Sin permanencia
+
+- **Esencial:** Chatbot WhatsApp Business, respuestas 24/7, agenda citas automática, preguntas frecuentes, soporte WA
+- **Premier:** Todo Esencial + recordatorios automáticos, seguimiento post-cita, reporte mensual, recuperación de inactivos, soporte prioritario
+- **Élite:** Todo Premier + chatbot Instagram, Google Calendar integrado, historial del cliente, campañas de reactivación, soporte dedicado
+
+---
+
+### 🎙️ Recepcionista AI de Voz — Membresía Mensual
+| Plan | Instalación | Mensualidad |
+|---|---|---|
+| Starter — Esencial | $9,000 MXN ($500 USD) | $5,346 MXN/mes ($297 USD) |
+| **Pro — Premier ⭐ MÁS POPULAR** | $14,400 MXN ($800 USD) | **$10,746 MXN/mes ($597 USD)** |
+| Agency — Élite | $27,000 MXN ($1,500 USD) | $21,600 MXN/mes ($1,200 USD) |
+
+**Incluye:** Asistente telefónico 24/7 · Sin contratos
+
+- **Esencial:** Voz personalizada, agenda citas 24/7, 1 número dedicado, hasta 300 min incluidos, reporte mensual
+- **Premier:** Todo Esencial + Google Calendar integrado, voz clonada del negocio, hasta 800 min, ajustes mensuales, soporte prioritario WA
+- **Élite:** Todo Premier + múltiples sucursales, dashboard avanzado, hasta 2,000 min, integraciones custom, gerente de cuenta
+
+**Minutos adicionales:** $6.30 / $5.40 / $4.50 MXN por min según plan
+
+---
+
+### 📦 Paquetes Combo — Descuento por combinar
+| Combo | Incluye | Instalación | Mensualidad | Ahorro |
+|---|---|---|---|---|
+| **Clínica Pro** | Web Negocio + Chatbot Premier | $3,500 MXN | $5,200 MXN/mes ($289 USD) | $800 MXN · 13% |
+| **Presencia Digital** | Web Digital + Chatbot Élite | $4,500 MXN | $8,200 MXN/mes ($456 USD) | $1,300 MXN · 14% |
+| **Total DLM** | Web Digital + Chatbot Premier + Recepcionista AI | $5,500 MXN | $15,500 MXN/mes ($861 USD) | $3,246 MXN · 17% |
+
+*Todos los combos incluyen: configuración personalizada, soporte prioritario, reporte mensual unificado*
+*Sin contratos · Sin letra chica · Si cancelas, te entregamos el acceso a tu diseño*
+
+---
+
+## Proyección de ingresos (meta 3 meses)
+Con 10 clientes en plan Clínica Pro:
+- **MRR:** $52,000 MXN/mes (~$2,890 USD)
+
+Con 20 clientes en plan Clínica Pro:
+- **MRR:** $104,000 MXN/mes (~$5,780 USD)
+
+---
+
+## Stack Técnico
+- n8n Cloud — automatización
+- OpenAI GPT-4o — IA del chatbot
+- Twilio — WhatsApp Business
+- Google Sheets + Calendar — datos y agenda
+- GitHub Pages — páginas web (por ahora, hasta tener dominio)
