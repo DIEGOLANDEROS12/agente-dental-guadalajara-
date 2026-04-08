@@ -1,5 +1,8 @@
 # Agente Virtual Dental — Guadalajara
 
+> **LEER PRIMERO:** Revisar la carpeta `/memory` antes de trabajar en este proyecto.
+> Contiene errores aprendidos, info del negocio y estado de clientes.
+
 Proyecto de automatización para clínicas dentales en Guadalajara.
 Crea asistentes virtuales de WhatsApp/Instagram que agendan citas, guardan memoria de pacientes y responden como humanos reales.
 
