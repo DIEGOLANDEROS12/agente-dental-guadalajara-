@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Chatbot — KANO Odontología Integral</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 16px 40px;
+    }
+
+    /* Top banner */
+    .banner {
+      background: linear-gradient(135deg, #1a6b3a 0%, #25d366 100%);
+      color: white;
+      text-align: center;
+      padding: 14px 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.25);
+    }
+    .banner h1 { font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; }
+    .banner p { font-size: 0.78rem; opacity: 0.88; margin-top: 3px; }
+
+    /* Phone wrapper */
+    .phone {
+      width: 100%;
+      max-width: 480px;
+      background: #e5ddd5;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      height: 680px;
+    }
+
+    /* WhatsApp-style header */
+    .chat-header {
+      background: #075e54;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      flex-shrink: 0;
+    }
+    .avatar {
+      width: 42px; height: 42px;
+      background: #25d366;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .chat-header-info { flex: 1; }
+    .chat-header-info .name { font-size: 0.95rem; font-weight: 600; }
+    .chat-header-info .status {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      background: #25d366;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Chat area */
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8c8c8' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .chat-body::-webkit-scrollbar { width: 4px; }
+    .chat-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+    /* Message bubbles */
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+
+    .bubble {
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      line-height: 1.45;
+      position: relative;
+      word-break: break-word;
+    }
+    .msg.bot .bubble {
+      background: white;
+      border-top-left-radius: 4px;
+      color: #111;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .msg.user .bubble {
+      background: #dcf8c6;
+      border-top-right-radius: 4px;
+      color: #111;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .msg-time {
+      font-size: 0.68rem;
+      color: #777;
+      margin-top: 2px;
+      padding: 0 4px;
+    }
+    .msg.user .msg-time { text-align: right; }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+      animation: fadeIn 0.3s ease;
+    }
+    .typing-bubble {
+      background: white;
+      border-radius: 12px;
+      border-top-left-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .dot {
+      width: 7px; height: 7px;
+      background: #90949c;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* Input bar (decorative) */
+    .chat-footer {
+      background: #f0f0f0;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .input-fake {
+      flex: 1;
+      background: white;
+      border-radius: 24px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      color: #999;
+      border: none;
+      outline: none;
+    }
+    .send-btn {
+      width: 40px; height: 40px;
+      background: #075e54;
+      border-radius: 50%;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: default;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Restart button */
+    .restart-btn {
+      margin-top: 18px;
+      background: #075e54;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 4px 14px rgba(7,94,84,0.3);
+    }
+    .restart-btn:hover { background: #064e44; transform: translateY(-1px); }
+    .restart-btn:active { transform: translateY(0); }
+
+    .footer-note {
+      margin-top: 12px;
+      font-size: 0.72rem;
+      color: #999;
+      text-align: center;
+    }
+
+    /* Section divider */
+    .divider {
+      align-self: center;
+      background: rgba(0,0,0,0.12);
+      color: #555;
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <h1>🦷 Demo — Asistente Virtual para Clínicas Dentales</h1>
+    <p>Así respondería su asistente 24/7 en WhatsApp</p>
+  </div>
+
+  <div class="phone">
+    <div class="chat-header">
+      <div class="avatar">🦷</div>
+      <div class="chat-header-info">
+        <div class="name">KANO Odontología</div>
+        <div class="status">
+          <span class="status-dot"></span>
+          <span>En línea ahora</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-body" id="chatBody"></div>
+
+    <div class="chat-footer">
+      <input class="input-fake" type="text" placeholder="Escribe un mensaje..." readonly />
+      <div class="send-btn">➤</div>
+    </div>
+  </div>
+
+  <button class="restart-btn" onclick="restartDemo()">↺ &nbsp;Reiniciar Demo</button>
+  <p class="footer-note">Demo creado por DLM Solutions · dlmsolutions.mx</p>
+
+<script>
+  // ─── Conversation script ───────────────────────────────────────────
+  // Each entry: { type:'bot'|'user'|'divider', text, delay }
+  // delay = ms AFTER the previous message appears before this one shows
+  // bot messages show a typing indicator first
+
+  const CONVERSATIONS = [
+    // ── Scenario 1: Horarios ──
+    { type:'divider', text:'Escenario 1 — Consulta de horarios' },
+    { type:'user', text:'Hola, ¿a qué horas atienden?', delay:800 },
+    { type:'bot',  text:'¡Hola! 😊 Bienvenido a KANO Odontología Integral.\n\nAtendemos:\n📅 Lunes a Viernes: 10am – 2pm y 4pm – 8pm\n📅 Sábados: 10am – 3pm\n\n¿Le gustaría agendar una cita?', delay:1000 },
+    { type:'user', text:'Sí, ¿tienen cita disponible este sábado?', delay:900 },
+    { type:'bot',  text:'¡Claro que sí! 🗓️ Tenemos espacio este sábado.\n\n¿A qué hora le viene mejor?\n— 10:00 am\n— 11:00 am\n— 12:00 pm', delay:1200 },
+    { type:'user', text:'A las 11 por favor', delay:700 },
+    { type:'bot',  text:'✅ ¡Perfecto! Su cita está confirmada para el *sábado a las 11:00 am*.\n\nLe enviaremos un recordatorio el día anterior. ¿Hay algo más en lo que le pueda ayudar?', delay:1000 },
+
+    // ── Scenario 2: Precios ──
+    { type:'divider', text:'Escenario 2 — Consulta de precios' },
+    { type:'user', text:'¿Cuánto cobran por una limpieza dental?', delay:800 },
+    { type:'bot',  text:'¡Buenas tardes! La limpieza dental profunda incluye:\n\n🦷 Eliminación de sarro\n🦷 Pulido dental\n🦷 Revisión general\n\nEl costo es de *$450 MXN*. Muchos de nuestros pacientes la combinan con blanqueamiento. ¿Le interesa saber el paquete?', delay:1200 },
+    { type:'user', text:'Sí, ¿cuánto saldría el paquete?', delay:700 },
+    { type:'bot',  text:'✨ El paquete *Limpieza + Blanqueamiento* queda en *$950 MXN* (ahorra $200).\n\nIncluye:\n✔ Limpieza completa\n✔ Blanqueamiento profesional\n✔ Asesoría de mantenimiento\n\n¿Le agendo una cita para esta semana?', delay:1200 },
+
+    // ── Scenario 3: Urgencia ──
+    { type:'divider', text:'Escenario 3 — Urgencia dental' },
+    { type:'user', text:'Tengo mucho dolor de muela desde ayer, ¿pueden verme hoy?', delay:800 },
+    { type:'bot',  text:'😟 Lamentamos que esté en dolor. Sí atendemos urgencias.\n\n¿Podría indicarme:\n1️⃣ ¿El dolor es constante o por momentos?\n2️⃣ ¿Tiene inflamación en la cara o encía?\n\nCon eso le digo los tiempos de atención disponibles.', delay:1200 },
+    { type:'user', text:'Es constante y sí tengo un poco de inflamación', delay:700 },
+    { type:'bot',  text:'⚠️ Entendido. Con esos síntomas le recomendamos venir hoy.\n\nTenemos espacio a las *5:00 pm* o *6:30 pm*.\n\n¿Cuál le funciona? Le confirmo con el doctor de inmediato.', delay:1100 },
+    { type:'user', text:'A las 5 pm', delay:600 },
+    { type:'bot',  text:'✅ *Cita de urgencia confirmada — hoy 5:00 pm*\n\nDirección: Av. San Mateo 1225-36, Parques de Tesistán, Zapopan\n\nTome un analgésico mientras tanto si lo tiene disponible. ¡Le esperamos! 🦷', delay:1000 },
+
+    // ── Scenario 4: Implantes ──
+    { type:'divider', text:'Escenario 4 — Información de servicios' },
+    { type:'user', text:'¿Hacen implantes dentales?', delay:800 },
+    { type:'bot',  text:'¡Sí! Somos especialistas en implantes dentales. 🦷\n\nOfrecemos:\n✔ Implantes de titanio de alta calidad\n✔ Evaluación gratuita de viabilidad\n✔ Planes de pago disponibles\n\n¿Desea que le agende una *valoración sin costo* con el especialista?', delay:1200 },
+    { type:'user', text:'¿Tienen planes de pago?', delay:700 },
+    { type:'bot',  text:'💳 ¡Sí! Manejamos varias opciones:\n\n— 3 MSI con tarjeta\n— 6 MSI con tarjeta\n— Plan de pago personalizado sin tarjeta\n\nLe explicamos todo a detalle en su valoración. ¿Le agendo esta semana?', delay:1200 },
+  ];
+
+  // ─── Engine ────────────────────────────────────────────────────────
+  const chatBody = document.getElementById('chatBody');
+  let timeline = [];
+  let running = false;
+
+  function getTime() {
+    const now = new Date();
+    return now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function scrollDown() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function addDivider(text) {
+    const d = document.createElement('div');
+    d.className = 'divider';
+    d.textContent = text;
+    chatBody.appendChild(d);
+    scrollDown();
+  }
+
+  function showTyping() {
+    const wrap = document.createElement('div');
+    wrap.className = 'typing-indicator';
+    wrap.id = 'typing';
+    wrap.innerHTML = `<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+    chatBody.appendChild(wrap);
+    scrollDown();
+    return wrap;
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing');
+    if (el) el.remove();
+  }
+
+  function addMessage(type, text) {
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${type}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = text.replace(/\n/g, '<br>').replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = getTime();
+
+    wrap.appendChild(bubble);
+    wrap.appendChild(time);
+    chatBody.appendChild(wrap);
+    scrollDown();
+  }
+
+  async function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function runConversation() {
+    running = true;
+    chatBody.innerHTML = '';
+
+    for (const item of CONVERSATIONS) {
+      if (!running) break;
+
+      await sleep(item.delay || 600);
+
+      if (item.type === 'divider') {
+        addDivider(item.text);
+        await sleep(600);
+
+      } else if (item.type === 'user') {
+        addMessage('user', item.text);
+
+      } else if (item.type === 'bot') {
+        const typingEl = showTyping();
+        // Typing time based on message length
+        const typingTime = Math.min(600 + item.text.length * 18, 2800);
+        await sleep(typingTime);
+        removeTyping();
+        addMessage('bot', item.text);
+      }
+    }
+
+    // End card
+    await sleep(1200);
+    const endDiv = document.createElement('div');
+    endDiv.className = 'divider';
+    endDiv.style.background = 'rgba(37,211,102,0.2)';
+    endDiv.style.color = '#075e54';
+    endDiv.style.fontWeight = '600';
+    endDiv.textContent = '✅ Fin del demo — El asistente funciona 24/7';
+    chatBody.appendChild(endDiv);
+    scrollDown();
+    running = false;
+  }
+
+  function restartDemo() {
+    running = false;
+    setTimeout(runConversation, 100);
+  }
+
+  // Auto-start
+  runConversation();
+</script>
+</body>
+</html>
