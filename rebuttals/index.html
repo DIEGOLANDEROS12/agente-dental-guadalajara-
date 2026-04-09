@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoja de Rebuttals — DLM Solutions</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 0 32px;
+    }
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    header p {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    /* Search */
+    .search-wrap {
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      outline: none;
+    }
+    .search-wrap input::placeholder { color: #475569; }
+    .search-wrap input:focus { border-color: #3b82f6; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab.active, .tab:hover {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    /* Cards */
+    .cards {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #475569; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .card-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .card-title {
+      flex: 1;
+    }
+    .card-title .objection {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+    .card-title .tag {
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .chevron {
+      color: #475569;
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+    .card.open .chevron { transform: rotate(180deg); }
+
+    .card-body {
+      display: none;
+      padding: 0 16px 16px;
+      border-top: 1px solid #334155;
+    }
+    .card.open .card-body { display: block; }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 14px 0 8px;
+    }
+    .section-label.red { color: #ef4444; }
+    .section-label.green { color: #22c55e; }
+    .section-label.blue { color: #3b82f6; }
+    .section-label.yellow { color: #eab308; }
+
+    .quote {
+      background: #0f172a;
+      border-left: 3px solid #3b82f6;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .quote.green { border-left-color: #22c55e; }
+    .quote.yellow { border-left-color: #eab308; }
+
+    .tip {
+      background: #1a2744;
+      border: 1px solid #1e3a5f;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      color: #93c5fd;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+    .tip strong { color: #60a5fa; }
+
+    /* Mentalidad section */
+    .mentality-card {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 1px solid #1e3a5f;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto 14px;
+    }
+    .mentality-card h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #60a5fa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .mentality-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+    .mentality-item .bullet { color: #3b82f6; flex-shrink: 0; }
+
+    /* Urgency formula */
+    .formula {
+      background: #0f172a;
+      border: 1px dashed #334155;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+    .formula span { color: #f1f5f9; font-weight: 700; }
+    .formula .op { color: #64748b; margin: 0 6px; }
+
+    .hidden { display: none !important; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.72rem;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>💼 Hoja de Rebuttals</h1>
+  <p>DLM Solutions — Guía de cierre para demos</p>
+</header>
+
+<!-- Mentalidad -->
+<div class="mentality-card">
+  <h2>⚡ Mentalidad antes de entrar</h2>
+  <div class="mentality-item"><span class="bullet">→</span> No estás vendiendo. Estás diagnosticando un problema y recetando la solución.</div>
+  <div class="mentality-item"><span class="bullet">→</span> Si ellos tienen el problema, TÚ tienes la solución. El poder es tuyo.</div>
+  <div class="mentality-item"><span class="bullet">→</span> Nunca termines sin un siguiente paso concreto: ¿cuándo arrancamos?</div>
+  <div class="mentality-item"><span class="bullet">→</span> Cada objeción es una pregunta disfrazada. Respóndela con pregunta.</div>
+  <div class="formula">
+    <span>Costo del problema</span> <span class="op">&gt;</span> <span>Tu precio</span> <span class="op">=</span> <span style="color:#22c55e">Decisión obvia</span>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="search-wrap">
+  <input type="text" id="searchInput" placeholder="🔍 Buscar objeción..." oninput="filterCards()" />
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="filterTab('all', this)">Todas</div>
+  <div class="tab" onclick="filterTab('evasion', this)">Evasión</div>
+  <div class="tab" onclick="filterTab('precio', this)">Precio</div>
+  <div class="tab" onclick="filterTab('duda', this)">Duda</div>
+  <div class="tab" onclick="filterTab('competencia', this)">Competencia</div>
+</div>
+
+<div class="cards" id="cardList">
+
+  <!-- 1 -->
+  <div class="card" data-cat="evasion" data-text="mandame la info te aviso mándame información">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#1e3a5f">📩</div>
+      <div class="card-title">
+        <div class="objection">"Mándame la info y te aviso"</div>
+        <div class="tag">Evasión — No vio suficiente valor aún</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label red">❌ Nunca digas</div>
+      <div class="quote">"Claro, con gusto te la mando."</div>
+
+      <div class="section-label green">✅ Di esto primero</div>
+      <div class="quote green">"Con gusto. Antes de mandársela — ¿qué información necesita para tomar la decisión? Así le mando exactamente lo que necesita y no le mando cosas de más."</div>
+
+      <div class="section-label blue">🔁 Si no saben qué decir</div>
+      <div class="quote">"¿Es el precio, es si lo necesitan, o es algo más que no quedó claro?"</div>
+
+      <div class="tip"><strong>Clave:</strong> Si no pueden decirte qué información necesitan, están evadiendo. Si dan una razón concreta, esa es la objeción real — resuélvela ahí mismo y cierra.</div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="card" data-cat="evasion" data-text="déjame pensarlo lo pienso necesito pensarlo">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#1e3a5f">🤔</div>
+      <div class="card-title">
+        <div class="objection">"Déjame pensarlo"</div>
+        <div class="tag">Evasión — Objeción escondida</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Claro, entiendo. ¿Qué es lo que necesita pensar — es el precio, es si lo necesitan, o es algo más?"</div>
+
+      <div class="section-label blue">🔁 Según lo que digan</div>
+      <div class="quote">"Es el precio" → Ve al rebuttal de precio.<br><br>"No sé si lo necesito" → "Platíqueme, ¿cuántos mensajes de WhatsApp quedan sin respuesta en un día normal?"<br><br>"Necesito consultarlo" → Ve al rebuttal de socio/esposa.</div>
+
+      <div class="tip"><strong>Clave:</strong> Nadie piensa en algo que realmente quiere. Si quieren pensarlo, hay una duda específica. Encuéntrala.</div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="card" data-cat="precio" data-text="está muy caro es mucho dinero caro precio">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#3b1f1f">💸</div>
+      <div class="card-title">
+        <div class="objection">"Está muy caro"</div>
+        <div class="tag">Precio — No ve el ROI todavía</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Paso 1 — Entiende el problema</div>
+      <div class="quote green">"¿Caro comparado con qué?"</div>
+
+      <div class="section-label blue">✅ Paso 2 — Ponle precio al problema</div>
+      <div class="quote green">"¿Cuánto vale una consulta en su consultorio? ¿Y cuántos pacientes cree que pierden al mes por no tener esto? Si son 3 pacientes de $1,500 cada uno, son $4,500 al mes que se van. Mi servicio cuesta $2,500. ¿Cuál es el más caro?"</div>
+
+      <div class="section-label blue">✅ Paso 3 — Compara con la competencia</div>
+      <div class="quote green">"La competencia cobra $8,000–$15,000 solo de instalación. Nosotros arrancamos en $1,500 y si no ven resultados, cancelan sin penalización."</div>
+
+      <div class="tip"><strong>Clave:</strong> Nunca defiendas el precio. Ataca el costo de NO tener el servicio.</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="card" data-cat="precio" data-text="no tenemos presupuesto ahorita no podemos pagar presupuesto">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#3b1f1f">🚫</div>
+      <div class="card-title">
+        <div class="objection">"Ahorita no tenemos presupuesto"</div>
+        <div class="tag">Precio — Prioridad, no presupuesto</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Entiendo perfectamente. ¿Me puede decir cuánto están gastando ahorita en conseguir pacientes nuevos — publicidad, volantes, lo que sea?"</div>
+
+      <div class="section-label blue">🔁 Si gastan algo en marketing</div>
+      <div class="quote">"Lo que yo hago cuesta menos que eso y trabaja las 24 horas. ¿Sería posible redirigir una parte de ese presupuesto?"</div>
+
+      <div class="section-label blue">🔁 Si no gastan nada</div>
+      <div class="quote">"Entonces están creciendo solo por recomendación. ¿Cuánto más rápido crecerían si además de eso aparecieran en Google y respondieran WhatsApp automáticamente? ¿Cuánto vale eso para el consultorio?"</div>
+
+      <div class="tip"><strong>Clave:</strong> Presupuesto no existe — existe prioridad. Si algo genera más de lo que cuesta, siempre hay presupuesto.</div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="card" data-cat="duda" data-text="funciona resultados garantía no sé si funcione">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#1a3a1a">🎯</div>
+      <div class="card-title">
+        <div class="objection">"¿Y si no funciona?"</div>
+        <div class="tag">Duda — Miedo al riesgo</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Por eso no manejamos contratos. Si en 30 días no ven el valor, cancelan y les entrego todo — el diseño, el acceso, todo. El riesgo es mío, no de ustedes."</div>
+
+      <div class="section-label blue">🔁 Si piden garantía de resultados</div>
+      <div class="quote">"No puedo garantizarle pacientes porque eso depende de muchos factores. Lo que sí le garantizo es que su consultorio va a estar disponible 24/7, va a aparecer en Google, y ningún mensaje de WhatsApp se va a quedar sin respuesta. ¿Eso no vale $2,500 al mes?"</div>
+
+      <div class="tip"><strong>Clave:</strong> El "sin contrato" es tu arma más poderosa. Úsala siempre que haya miedo al riesgo.</div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="card" data-cat="duda" data-text="consultar socio esposa pareja necesito consultarlo">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#1a2a3a">👥</div>
+      <div class="card-title">
+        <div class="objection">"Necesito consultarlo con mi socio / esposa"</div>
+        <div class="tag">Duda — No es el decisor o busca escape</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Por supuesto. ¿Cuándo podría ser una llamada rápida con los dos? Así les explico todo junto y no tienen que andar de intermediarios con la información."</div>
+
+      <div class="section-label blue">🔁 Si insiste en que él se lo explica</div>
+      <div class="quote">"Entiendo. Para ayudarle a explicárselo mejor — ¿qué cree que le va a preguntar su socio? Así le preparo la respuesta exacta."</div>
+
+      <div class="tip"><strong>Clave:</strong> Siempre intenta estar presente en esa segunda conversación. Lo que no puedes ver, no puedes cerrar.</div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="card" data-cat="competencia" data-text="ya tenemos página web alguien nos lleva redes sociales ya tenemos">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#2a1a3a">🌐</div>
+      <div class="card-title">
+        <div class="objection">"Ya tenemos página web / ya tenemos alguien"</div>
+        <div class="tag">Competencia — Comparar propuesta de valor</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Qué bueno. ¿Me la puede mostrar? Me gustaría ver cómo está."</div>
+
+      <div class="section-label blue">🔁 Al ver la página, busca esto</div>
+      <div class="quote">¿Tiene botón de WhatsApp? ¿Aparece en Google? ¿Se ve bien en celular? ¿Tiene formulario de citas? ¿Cuándo fue la última actualización?</div>
+
+      <div class="section-label yellow">⚡ Después di</div>
+      <div class="quote green">"Está bien como punto de partida. Lo que yo ofrezco es diferente — no solo la página, sino el sistema completo: que aparezca en Google, que responda WhatsApp solo, que agende citas automáticamente. ¿Su página actual hace eso?"</div>
+
+      <div class="tip"><strong>Clave:</strong> No critiques lo que tienen. Muestra lo que les falta.</div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="card" data-cat="evasion" data-text="no tengo tiempo ahorita estoy muy ocupado tiempo">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#1e293b">⏰</div>
+      <div class="card-title">
+        <div class="objection">"No tengo tiempo ahorita"</div>
+        <div class="tag">Evasión — Prioridad baja</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Di esto</div>
+      <div class="quote green">"Entiendo perfectamente — por eso mismo existe este servicio. Una vez que está funcionando, usted no tiene que hacer nada. ¿Cuánto tiempo le toma ahorita responder mensajes de WhatsApp al día?"</div>
+
+      <div class="section-label blue">🔁 De tu parte</div>
+      <div class="quote">"Para arrancar necesito 20 minutos con usted una sola vez. El resto lo hago yo. ¿Esta semana tiene 20 minutos?"</div>
+
+      <div class="tip"><strong>Clave:</strong> La falta de tiempo ES el problema que resuelves. Vuélvelo en tu favor.</div>
+    </div>
+  </div>
+
+  <!-- 9 — CIERRE -->
+  <div class="card" data-cat="evasion" data-text="cierre cerrar siguiente paso arrancar">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon" style="background:#14532d">🏁</div>
+      <div class="card-title">
+        <div class="objection">Script de Cierre — Cuando muestran interés</div>
+        <div class="tag">Cierre — Usar al final de cada demo</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label green">✅ Cierre directo</div>
+      <div class="quote green">"Para arrancar solo necesito 3 cosas: su número de WhatsApp Business, un logo si tienen, y el primer mes. Esta semana queda funcionando."</div>
+
+      <div class="section-label blue">✅ Cierre con urgencia</div>
+      <div class="quote green">"Ahorita tengo espacio para arrancar esta semana. La siguiente semana ya tengo dos clientes más entrando. Si quieren estar listos para el fin de mes, habría que arrancar hoy."</div>
+
+      <div class="section-label yellow">✅ Cierre con pregunta</div>
+      <div class="quote green">"¿El lunes a las 11 o a las 5 les funciona para que les mande el acceso y empezamos?"</div>
+
+      <div class="tip"><strong>Clave:</strong> No preguntas si quieren comprar. Preguntas cuándo arrancamos. Asumes la venta.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">DLM Solutions · Solo para uso interno · Diego Landeros</div>
+
+<script>
+  function toggleCard(header) {
+    const card = header.parentElement;
+    card.classList.toggle('open');
+  }
+
+  function filterTab(cat, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.card').forEach(card => {
+      if (cat === 'all' || card.dataset.cat === cat) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  function filterCards() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.card').forEach(card => {
+      const text = (card.dataset.text + ' ' + card.innerText).toLowerCase();
+      card.classList.toggle('hidden', !text.includes(q));
+    });
+  }
+</script>
+</body>
+</html>
