@@ -1,0 +1,121 @@
+============================================================
+   SCRIPT DEMO DLM SOLUTIONS — 20 MINUTOS
+============================================================
+
+
+------------------------------------------------------------
+MIN 0-5 | DIAGNOSTICO (no vendas todavia)
+------------------------------------------------------------
+
+"Doctor, antes de ensenarle cualquier cosa —
+ cuenteme, como llegan los pacientes nuevos
+ a su consultorio ahorita?"
+
+  → Escucha. Normalmente dice: recomendacion, Google, redes.
+
+"Y cuantos mensajes de WhatsApp le llegan al dia
+ que no puede contestar mientras esta con un paciente?"
+
+  → Escucha.
+
+"Alguna vez ha perdido un paciente porque tardaron
+ en contestar o porque no encontraron informacion
+ del consultorio?"
+
+  → Si dice no: "Esta seguro? Muchos no avisan,
+    simplemente llaman al siguiente."
+
+"Le pregunto porque lo que le voy a mostrar resuelve
+ exactamente eso. Me permite 15 minutos?"
+
+
+------------------------------------------------------------
+MIN 5-12 | DEMO EN VIVO
+------------------------------------------------------------
+
+Abre en tu celular y muerstraselo:
+diegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/
+
+"Esto es lo que veran sus pacientes al escribirle
+ a WhatsApp — a cualquier hora, aunque usted este
+ con alguien o dormido."
+
+  → Deja que corra el loop. Senala mientras habla.
+
+"Responde horarios, precios, agenda citas, maneja
+ urgencias — solo. Sin que usted toque nada."
+
+"Ve como le pregunta el nombre y el motivo de consulta?
+ Eso le llega a usted directo como notificacion,
+ con todo el dato del paciente ya listo."
+
+
+------------------------------------------------------------
+MIN 12-17 | PRECIOS
+------------------------------------------------------------
+
+"Tenemos tres niveles segun lo que necesiten:"
+
+  ESENCIAL   — Instalacion $1,500 | $2,200 al mes
+  PREMIER    — Instalacion $2,000 | $3,500 al mes  ★
+  ELITE      — Instalacion $2,500 | $5,500 al mes
+
+"La mayoria arranca con Esencial o Premier.
+ La diferencia es que Premier incluye recordatorios
+ automaticos y seguimiento post-cita — recupera
+ pacientes que se olvidaron de volver."
+
+Si no tienen pagina web:
+
+"El combo Clinica Pro les da pagina web + chatbot
+ por $3,500 de instalacion y $5,200 al mes —
+ sale mas barato que los dos por separado."
+
+
+------------------------------------------------------------
+MIN 17-20 | CIERRE
+------------------------------------------------------------
+
+"Cual de las opciones le hace mas sentido
+ para su consultorio?"
+
+  → Escucha. Si dudan:
+
+"No hay contrato. Si en 30 dias no ven el valor,
+ cancelan y les entrego todo. El riesgo es mio,
+ no de ustedes."
+
+Cierre directo:
+
+"Para arrancar esta semana solo necesito su numero
+ de WhatsApp Business y el primer pago.
+ El lunes o martes les funciona para el setup?"
+
+
+------------------------------------------------------------
+MANEJO DE OBJECIONES RAPIDAS
+------------------------------------------------------------
+
+"Mandame la info"
+→ "Que informacion necesita para tomar la decision?
+   Asi le mando exactamente eso."
+
+"Dejame pensarlo"
+→ "Que es lo que necesita pensar — es el precio,
+   es si lo necesitan, o es algo mas?"
+
+"Esta muy caro"
+→ "Caro comparado con los pacientes que pierde
+   cada mes?"
+
+"No tenemos presupuesto"
+→ "Cuanto estan gastando ahorita en conseguir
+   pacientes nuevos?"
+
+Hoja completa de rebuttals:
+diegolanderos12.github.io/agente-dental-guadalajara-/rebuttals/
+
+
+============================================================
+   DLM Solutions — Diego Landeros — Solo uso interno
+============================================================
