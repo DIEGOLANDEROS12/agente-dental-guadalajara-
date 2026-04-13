@@ -284,7 +284,7 @@
       "parameters": {
         "from": "whatsapp:+14155238886",
         "to": "={{ 'whatsapp:' + $json.senderId }}",
-        "body": "={{ $json.message }}"
+        "message": "={{ $json.message }}"
       },
       "id": "respond-webhook",
       "name": "Responder Webhook",
