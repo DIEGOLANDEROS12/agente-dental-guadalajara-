@@ -1,0 +1,135 @@
+============================================================
+   SISTEMA DE MENSAJES — DLM Solutions
+   Rellena los campos entre [ ] antes de mandar
+============================================================
+
+
+------------------------------------------------------------
+VERSION A — SIN PAGINA WEB
+------------------------------------------------------------
+
+MENSAJE 1 — Apertura (Dia 1)
+------------------------------
+Buenas tardes, ¿es [NOMBRE CLINICA]?
+
+Le escribo porque busqué su consultorio en Google
+y no encontré página web — con [X] reseñas y [X]
+estrellas que tienen, están perdiendo pacientes que
+los buscan en internet y no los encuentran.
+
+Les hice una demo de cómo se vería su página web.
+¿Gusta que se la mande?
+
+
+MENSAJE 2 — Follow-up 1 (Dia 3 sin respuesta)
+----------------------------------------------
+Hola [NOMBRE DOCTOR/A], solo quería saber
+si vio mi mensaje anterior.
+
+La demo que hice para [NOMBRE CLINICA] la tengo
+lista — son 2 minutos verla y creo que le va
+a interesar.
+
+
+MENSAJE 3 — Follow-up 2 (Dia 6 sin respuesta)
+----------------------------------------------
+Dr./Dra. [NOMBRE], última vez que le escribo.
+
+¿Le interesa ver cómo quedaría su página web,
+o ahorita no es buen momento?
+
+La demo sigue lista cuando quiera.
+
+
+MENSAJE 4 — Friendly Reminder (Dia 10)
+---------------------------------------
+Sin problema si no es el momento.
+
+La demo de [NOMBRE CLINICA] la guardo por
+si en algún momento quiere verla.
+
+¡Buen día, saludos!
+
+
+------------------------------------------------------------
+VERSION B — TIENEN WEB / ALTO VOLUMEN SIN RESPUESTA
+------------------------------------------------------------
+
+MENSAJE 1 — Apertura (Dia 1)
+------------------------------
+Buenas tardes, ¿es [NOMBRE CLINICA]?
+
+Vi que tienen [X] reseñas en Google — eso significa
+mucho flujo de pacientes. Los mensajes de WhatsApp
+que quedan sin respuesta mientras atienden se
+convierten en pacientes que llaman al siguiente.
+
+Les hice una demo de cómo funcionaría un asistente
+de WhatsApp para su consultorio. ¿Gusta que se
+la mande?
+
+
+MENSAJE 2 — Follow-up 1 (Dia 3 sin respuesta)
+----------------------------------------------
+Hola [NOMBRE DOCTOR/A], ¿vio mi mensaje?
+
+La demo del asistente para [NOMBRE CLINICA]
+está lista — responde pacientes 24/7 aunque
+estén con alguien en el consultorio.
+
+¿Se la mando?
+
+
+MENSAJE 3 — Follow-up 2 (Dia 6 sin respuesta)
+----------------------------------------------
+Dr./Dra. [NOMBRE], última vez que le escribo.
+
+¿Le interesa ver cómo funciona el asistente
+de WhatsApp, o ahorita no es buen momento?
+
+
+MENSAJE 4 — Friendly Reminder (Dia 10)
+---------------------------------------
+Sin problema si no es el momento.
+
+Por si acaso, cuando quiera ver la demo
+aquí estoy. ¡Saludos!
+
+
+------------------------------------------------------------
+CUANDO CONTESTAN "SI, MANDAMELA"
+------------------------------------------------------------
+
+VERSION A — Web:
+"Con gusto. Aquí está la demo:
+diegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/
+
+Esto es un ejemplo de cómo quedaría su página.
+¿Tiene 15 minutos esta semana para platicar
+y le explico cómo funciona?"
+
+VERSION B — Chatbot:
+"Con gusto. Aquí está la demo:
+diegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/
+
+Así respondería el asistente a sus pacientes,
+a cualquier hora. ¿Tiene 15 minutos esta semana
+para que lo vea en vivo desde su celular?"
+
+
+------------------------------------------------------------
+REGLAS
+------------------------------------------------------------
+
+→ Maximo 1 mensaje cada 3 dias
+→ Siempre usar nombre de la clinica o del doctor
+→ Nunca mencionar precio en los primeros mensajes
+→ Si contestan con pregunta — llamar de inmediato
+→ Si dicen "no me interesa" — agradecer y cerrar
+→ Si no contestan los 4 mensajes — archivar y
+   contactar en 2 meses
+
+
+============================================================
+   DLM Solutions · Diego Landeros · Solo uso interno
+============================================================
