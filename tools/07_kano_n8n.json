@@ -1,5 +1,5 @@
 {
-  "name": "Marcela — KANO Odontología Integral",
+  "name": "Marcela — KANO Odontología Integral v2",
   "nodes": [
     {
       "parameters": {
@@ -282,10 +282,9 @@
     },
     {
       "parameters": {
-        "operation": "send",
         "from": "whatsapp:+14155238886",
-        "to": "=whatsapp:{{ $json.senderId }}",
-        "message": "={{ $json.message }}"
+        "to": "={{ 'whatsapp:' + $json.senderId }}",
+        "body": "={{ $json.message }}"
       },
       "id": "respond-webhook",
       "name": "Responder Webhook",
