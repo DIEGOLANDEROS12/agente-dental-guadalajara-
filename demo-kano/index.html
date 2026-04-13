@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Demo Chatbot — KANO Odontología Integral</title>
+  <title>Demo Chatbot — DLM Solutions</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,6 +18,7 @@
       padding: 20px 16px 40px;
     }
 
+    /* Top banner */
     .banner {
       background: linear-gradient(135deg, #1a6b3a 0%, #25d366 100%);
       color: white;
@@ -32,6 +33,7 @@
     .banner h1 { font-size: 1rem; font-weight: 700; letter-spacing: 0.3px; }
     .banner p { font-size: 0.78rem; opacity: 0.88; margin-top: 3px; }
 
+    /* Phone wrapper */
     .phone {
       width: 100%;
       max-width: 480px;
@@ -44,6 +46,7 @@
       height: 680px;
     }
 
+    /* WhatsApp-style header */
     .chat-header {
       background: #075e54;
       color: white;
@@ -79,6 +82,7 @@
       50% { opacity: 0.4; }
     }
 
+    /* Chat area */
     .chat-body {
       flex: 1;
       overflow-y: auto;
@@ -91,6 +95,7 @@
     .chat-body::-webkit-scrollbar { width: 4px; }
     .chat-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
 
+    /* Message bubbles */
     .msg {
       display: flex;
       flex-direction: column;
@@ -132,6 +137,7 @@
     }
     .msg.user .msg-time { text-align: right; }
 
+    /* Typing indicator */
     .typing-indicator {
       display: flex;
       align-items: center;
@@ -162,6 +168,7 @@
       30% { transform: translateY(-6px); }
     }
 
+    /* Input bar (decorative) */
     .chat-footer {
       background: #f0f0f0;
       padding: 8px 12px;
@@ -192,6 +199,7 @@
       flex-shrink: 0;
     }
 
+    /* Restart button */
     .restart-btn {
       margin-top: 18px;
       background: #075e54;
@@ -215,6 +223,7 @@
       text-align: center;
     }
 
+    /* Section divider */
     .divider {
       align-self: center;
       background: rgba(0,0,0,0.12);
@@ -237,7 +246,7 @@
     <div class="chat-header">
       <div class="avatar">🦷</div>
       <div class="chat-header-info">
-        <div class="name">KANO Odontología</div>
+        <div class="name">DLM Solutions Demo</div>
         <div class="status">
           <span class="status-dot"></span>
           <span>En línea ahora</span>
@@ -257,21 +266,29 @@
   <p class="footer-note">Demo creado por DLM Solutions · dlmsolutions.mx</p>
 
 <script>
+  // ─── Conversation script ───────────────────────────────────────────
+  // Each entry: { type:'bot'|'user'|'divider', text, delay }
+  // delay = ms AFTER the previous message appears before this one shows
+  // bot messages show a typing indicator first
+
   const CONVERSATIONS = [
+    // ── Scenario 1: Horarios ──
     { type:'divider', text:'Escenario 1 — Consulta de horarios' },
     { type:'user', text:'Hola, ¿a qué horas atienden?', delay:800 },
-    { type:'bot',  text:'¡Hola! 😊 Bienvenido a KANO Odontología Integral.\n\nAtendemos:\n📅 Lunes a Viernes: 10am – 2pm y 4pm – 8pm\n📅 Sábados: 10am – 3pm\n\n¿Le gustaría agendar una cita?', delay:1000 },
+    { type:'bot',  text:'¡Hola! 😊 Bienvenido a su consultorio dental.\n\nAtendemos:\n📅 Lunes a Viernes: 10am – 2pm y 4pm – 8pm\n📅 Sábados: 10am – 3pm\n\n¿Le gustaría agendar una cita?', delay:1000 },
     { type:'user', text:'Sí, ¿tienen cita disponible este sábado?', delay:900 },
     { type:'bot',  text:'¡Claro que sí! 🗓️ Tenemos espacio este sábado.\n\n¿A qué hora le viene mejor?\n— 10:00 am\n— 11:00 am\n— 12:00 pm', delay:1200 },
     { type:'user', text:'A las 11 por favor', delay:700 },
     { type:'bot',  text:'✅ ¡Perfecto! Su cita está confirmada para el *sábado a las 11:00 am*.\n\nLe enviaremos un recordatorio el día anterior. ¿Hay algo más en lo que le pueda ayudar?', delay:1000 },
 
+    // ── Scenario 2: Precios ──
     { type:'divider', text:'Escenario 2 — Consulta de precios' },
     { type:'user', text:'¿Cuánto cobran por una limpieza dental?', delay:800 },
     { type:'bot',  text:'¡Buenas tardes! La limpieza dental profunda incluye:\n\n🦷 Eliminación de sarro\n🦷 Pulido dental\n🦷 Revisión general\n\nEl costo es de *$450 MXN*. Muchos de nuestros pacientes la combinan con blanqueamiento. ¿Le interesa saber el paquete?', delay:1200 },
     { type:'user', text:'Sí, ¿cuánto saldría el paquete?', delay:700 },
     { type:'bot',  text:'✨ El paquete *Limpieza + Blanqueamiento* queda en *$950 MXN* (ahorra $200).\n\nIncluye:\n✔ Limpieza completa\n✔ Blanqueamiento profesional\n✔ Asesoría de mantenimiento\n\n¿Le agendo una cita para esta semana?', delay:1200 },
 
+    // ── Scenario 3: Urgencia ──
     { type:'divider', text:'Escenario 3 — Urgencia dental' },
     { type:'user', text:'Tengo mucho dolor de muela desde ayer, ¿pueden verme hoy?', delay:800 },
     { type:'bot',  text:'😟 Lamentamos que esté en dolor. Sí atendemos urgencias.\n\n¿Podría indicarme:\n1️⃣ ¿El dolor es constante o por momentos?\n2️⃣ ¿Tiene inflamación en la cara o encía?\n\nCon eso le digo los tiempos de atención disponibles.', delay:1200 },
@@ -280,6 +297,7 @@
     { type:'user', text:'A las 5 pm', delay:600 },
     { type:'bot',  text:'✅ *Cita de urgencia confirmada — hoy 5:00 pm*\n\nDirección: Av. San Mateo 1225-36, Parques de Tesistán, Zapopan\n\nTome un analgésico mientras tanto si lo tiene disponible. ¡Le esperamos! 🦷', delay:1000 },
 
+    // ── Scenario 4: Implantes ──
     { type:'divider', text:'Escenario 4 — Información de servicios' },
     { type:'user', text:'¿Hacen implantes dentales?', delay:800 },
     { type:'bot',  text:'¡Sí! Somos especialistas en implantes dentales. 🦷\n\nOfrecemos:\n✔ Implantes de titanio de alta calidad\n✔ Evaluación gratuita de viabilidad\n✔ Planes de pago disponibles\n\n¿Desea que le agende una *valoración sin costo* con el especialista?', delay:1200 },
@@ -287,7 +305,9 @@
     { type:'bot',  text:'💳 ¡Sí! Manejamos varias opciones:\n\n— 3 MSI con tarjeta\n— 6 MSI con tarjeta\n— Plan de pago personalizado sin tarjeta\n\nLe explicamos todo a detalle en su valoración. ¿Le agendo esta semana?', delay:1200 },
   ];
 
+  // ─── Engine ────────────────────────────────────────────────────────
   const chatBody = document.getElementById('chatBody');
+  let timeline = [];
   let running = false;
 
   function getTime() {
@@ -295,7 +315,9 @@
     return now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
   }
 
-  function scrollDown() { chatBody.scrollTop = chatBody.scrollHeight; }
+  function scrollDown() {
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
 
   function addDivider(text) {
     const d = document.createElement('div');
@@ -312,6 +334,7 @@
     wrap.innerHTML = `<div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
     chatBody.appendChild(wrap);
     scrollDown();
+    return wrap;
   }
 
   function removeTyping() {
@@ -322,39 +345,52 @@
   function addMessage(type, text) {
     const wrap = document.createElement('div');
     wrap.className = `msg ${type}`;
+
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.innerHTML = text.replace(/\n/g, '<br>').replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+
     const time = document.createElement('div');
     time.className = 'msg-time';
     time.textContent = getTime();
+
     wrap.appendChild(bubble);
     wrap.appendChild(time);
     chatBody.appendChild(wrap);
     scrollDown();
   }
 
-  async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  async function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
 
   async function runConversation() {
     running = true;
     chatBody.innerHTML = '';
+
     for (const item of CONVERSATIONS) {
       if (!running) break;
+
       await sleep(item.delay || 600);
+
       if (item.type === 'divider') {
         addDivider(item.text);
         await sleep(600);
+
       } else if (item.type === 'user') {
         addMessage('user', item.text);
+
       } else if (item.type === 'bot') {
-        showTyping();
+        const typingEl = showTyping();
+        // Typing time based on message length
         const typingTime = Math.min(600 + item.text.length * 18, 2800);
         await sleep(typingTime);
         removeTyping();
         addMessage('bot', item.text);
       }
     }
+
+    // End card
     await sleep(1200);
     const endDiv = document.createElement('div');
     endDiv.className = 'divider';
@@ -372,6 +408,7 @@
     setTimeout(runConversation, 100);
   }
 
+  // Auto-start
   runConversation();
 </script>
 </body>
