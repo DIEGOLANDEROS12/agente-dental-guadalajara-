@@ -1,0 +1,350 @@
+{
+  "name": "Marcela — KANO Odontología Integral",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kano",
+        "responseMode": "onReceived",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 380],
+      "webhookId": "kano"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst data = item.json.body || item.json;\n\nlet normalized = {\n  channel: 'whatsapp',\n  senderId: '',\n  senderName: '',\n  messageText: '',\n  messageId: '',\n  timestamp: new Date().toISOString()\n};\n\n// ── TWILIO WhatsApp ──\nif (data.From && data.From.includes('whatsapp:')) {\n  normalized.channel = 'whatsapp';\n  normalized.senderId = data.From.replace('whatsapp:', '');\n  normalized.senderName = data.ProfileName || 'Cliente';\n  normalized.messageText = data.Body || '';\n  normalized.messageId = data.MessageSid || '';\n\n// ── META WhatsApp Business API ──\n} else if (data.object === 'whatsapp_business_account' || data.entry?.[0]?.changes?.[0]?.field === 'messages') {\n  const entry = data.entry?.[0]?.changes?.[0]?.value;\n  const msg = entry?.messages?.[0];\n  if (!msg || msg.type === 'status') return [];\n  normalized.channel = 'whatsapp';\n  normalized.senderId = msg?.from || '';\n  normalized.senderName = entry?.contacts?.[0]?.profile?.name || 'Cliente';\n  normalized.messageText = msg?.text?.body || msg?.interactive?.button_reply?.title || '';\n  normalized.messageId = msg?.id || '';\n\n// ── META Instagram DM ──\n} else if (data.object === 'instagram' || data.entry?.[0]?.messaging) {\n  const messaging = data.entry?.[0]?.messaging?.[0];\n  if (!messaging?.message?.text) return [];\n  normalized.channel = 'instagram';\n  normalized.senderId = messaging?.sender?.id || '';\n  normalized.senderName = 'Cliente Instagram';\n  normalized.messageText = messaging?.message?.text || '';\n  normalized.messageId = messaging?.message?.mid || '';\n\n// ── DATOS DE PRUEBA DIRECTOS ──\n} else if (data.senderId || data.messageText) {\n  normalized = { ...normalized, ...data };\n}\n\nif (!normalized.messageText) return [];\n\nreturn [{ json: normalized }];"
+      },
+      "id": "normalize-message",
+      "name": "Normalizar Mensaje",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 380]
+    },
+    {
+      "parameters": {
+        "operation": "getRows",
+        "documentId": {
+          "__rl": true,
+          "value": "PONER_URL_GOOGLE_SHEETS",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sender_id",
+              "lookupValue": "={{ $json.senderId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "id": "get-memory",
+      "name": "Obtener Memoria del Paciente",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [680, 380],
+      "executeOnce": false,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst memoryData = $input.first().json;\n\nlet patientContext = {\n  isNewPatient: true,\n  name: msg.senderName,\n  senderId: msg.senderId,\n  channel: msg.channel,\n  conversationHistory: [],\n  lastService: '',\n  lastAppointment: '',\n  preferences: '',\n  appointmentCount: 0\n};\n\nif (memoryData && memoryData.sender_id) {\n  patientContext.isNewPatient = false;\n  patientContext.name = memoryData.name || msg.senderName;\n  patientContext.conversationHistory = JSON.parse(memoryData.conversation_history || '[]');\n  patientContext.lastService = memoryData.last_service || '';\n  patientContext.lastAppointment = memoryData.last_appointment || '';\n  patientContext.preferences = memoryData.preferences || '';\n  patientContext.appointmentCount = parseInt(memoryData.appointment_count || '0');\n}\n\npatientContext.conversationHistory.push({\n  role: 'user',\n  content: msg.messageText,\n  timestamp: msg.timestamp\n});\n\nif (patientContext.conversationHistory.length > 10) {\n  patientContext.conversationHistory = patientContext.conversationHistory.slice(-10);\n}\n\nreturn [{ json: { ...msg, patientContext } }];"
+      },
+      "id": "build-context",
+      "name": "Construir Contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Eres Marcela, recepcionista virtual de KANO Odontología Integral en Zapopan. Atiendes por WhatsApp como una persona real: rápida, amable y directa.\n\n## TONO Y ESTILO\n- Mensajes cortos — máximo 2-3 oraciones por respuesta\n- Escribe como habla una persona, no en listas con viñetas\n- No digas \"Claro que sí\" ni \"Por supuesto\" de manera mecánica\n- No te presentes como IA ni \"asistente virtual\"\n- Varía tus respuestas: \"Perfecto\", \"Anotado\", \"Con gusto\", \"Claro\", \"Qué bien\"\n- Emoji con moderación — solo cuando sea natural, no en cada mensaje\n- Si ya tienes el nombre del cliente, úsalo de vez en cuando\n\n## INFORMACIÓN DE KANO\n- Clínica: KANO Odontología Integral\n- Dirección: Av. San Mateo 1225-36, Parques de Tesistán, Zapopan, Jalisco\n- Teléfono: 33 3258 8153\n- Horario: Lunes a Viernes 10:00 am – 2:00 pm y 4:00 pm – 8:00 pm\n- Sábado: 10:00 am – 3:00 pm\n- Domingo: Cerrado\n\n## DOCTORES\n- Dr. Juan Manuel Cano — Odontología general, restaurativa y estética\n- Dr. Luis Solórzano — Ortodoncia e implantes\n\n## SERVICIOS Y PRECIOS\n- Consulta de valoración: Gratis\n- Limpieza dental: $500 MXN\n- Blanqueamiento (incluye limpieza): $1,100 MXN\n- Resinas / composite: desde $600 MXN por pieza\n- Extracción: desde $500 MXN\n- Endodoncia: desde $2,000 MXN\n- Ortodoncia metálica: desde $8,500 MXN\n- Ortodoncia invisible: desde $18,000 MXN\n- Implante dental (incluye corona): desde $12,000 MXN\n\n## FORMAS DE PAGO\n- Efectivo y tarjeta de débito/crédito\n- Planes de pago disponibles en tratamientos mayores\n\n## MANEJO DE FECHAS (IMPORTANTE)\n- Fecha de hoy: {{ new Date().toLocaleDateString('es-MX', {weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone:'America/Mexico_City'}) }}\n- Siempre confirma con fecha completa: \"miércoles 7 de mayo a las 4:00 pm\"\n- Interpreta fechas relativas: \"mañana\", \"el lunes\", \"la próxima semana\", \"el 15\"\n- Nunca dejes la fecha ambigua en la confirmación\n\n## CONTEXTO DEL PACIENTE\n- Paciente nuevo: {{ $json.patientContext.isNewPatient }}\n- Nombre: {{ $json.patientContext.name }}\n- Último servicio: {{ $json.patientContext.lastService }}\n- Última cita: {{ $json.patientContext.lastAppointment }}\n- Citas previas: {{ $json.patientContext.appointmentCount }}\n- Canal: {{ $json.channel }}\n\n## REGLAS DE MEMORIA\n- Si ya tienes el nombre, NO lo vuelvas a pedir\n- Si ya tiene fecha elegida, NO la vuelvas a pedir\n- Si ya eligió servicio, NO lo vuelvas a pedir\n- Usa lo que ya sabes y avanza en el flujo\n\n## DATOS PARA AGENDAR (pide solo los que falten)\n1. Nombre completo\n2. Servicio que necesita\n3. Fecha y hora\n4. Número de teléfono\n\n## EJEMPLOS DE CONVERSACIÓN NATURAL\n\nPaciente: hola\nMarcela: ¡Hola! Bienvenido a KANO 😊 ¿En qué te puedo ayudar?\n\nPaciente: quiero una cita\nMarcela: Con gusto, ¿para qué día tienes disponible?\n\nPaciente: el jueves por la tarde\nMarcela: ¿A qué hora del jueves?\n\nPaciente: a las 5\nMarcela: Perfecto. ¿Me das tu nombre y teléfono?\n\nPaciente: Karla Ruiz, 3312345678\nMarcela: ¿Qué tratamiento necesitas, Karla?\n\nPaciente: limpieza\nMarcela: Anotado ✨ [inserta código y luego confirmación]\n\n---\n\nPaciente: ¿cuánto cuesta la limpieza?\nMarcela: La limpieza está en $500. ¿Te agendo una?\n\nPaciente: ¿y el blanqueamiento?\nMarcela: El blanqueamiento está en $1,100 e incluye la limpieza. ¿Te agendo una valoración gratis para ver si eres candidato?\n\n---\n\nPaciente: me duele horrible una muela, es urgente\nMarcela: Entendido. Para urgencias tenemos lugar el mismo día — llama al 33 3258 8153 para darte cita hoy mismo.\n\n---\n\nPaciente: ¿quién atiende ortodoncia?\nMarcela: El Dr. Luis Solórzano es el especialista en ortodoncia. ¿Te agendo una valoración sin costo?\n\nPaciente: ¿y cuánto cuesta?\nMarcela: Ortodoncia metálica desde $8,500 y ortodoncia invisible desde $18,000. La valoración es gratis para darte el plan exacto.\n\n---\n\nPaciente: ¿tienen implantes?\nMarcela: Sí, los implantes están desde $12,000 e incluyen la corona. Los hace el Dr. Luis Solórzano. ¿Quieres que te agendemos una valoración?\n\n---\n\nPaciente: ¿a qué hora abren mañana?\nMarcela: De lunes a viernes abrimos a las 10 am. Por la tarde de 4 a 8 pm. Los sábados de 10 am a 3 pm.\n\n## CUANDO TIENES TODOS LOS DATOS\nEscribe el código en UNA sola línea, luego el mensaje de confirmación:\n\nAGENDAR_CITA:[nombre completo]|[servicio]|[DD/MM/YYYY HH:mm]|[telefono]\nListo [nombre], tu cita de [servicio] quedó para el [fecha completa] 😊 ¿Algo más en lo que te pueda ayudar?\n\n## REGLAS CRÍTICAS\n- El código AGENDAR_CITA va en una sola línea sin saltos internos\n- Formato de fecha siempre: DD/MM/YYYY HH:mm (ej: 15/05/2026 16:00)\n- Nunca cambies el formato del código\n- Nunca des diagnósticos médicos\n- Para urgencias: que llamen directo al 33 3258 8153"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.patientContext.conversationHistory.map(m => m.role + ': ' + m.content).join('\\n') }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 400
+        }
+      },
+      "id": "ai-agent",
+      "name": "Marcela — Agente IA",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [1120, 380],
+      "credentials": {
+        "openAiApi": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.message.content }}",
+              "operation": "contains",
+              "value2": "AGENDAR_CITA:"
+            }
+          ]
+        }
+      },
+      "id": "route-intent",
+      "name": "Hay que agendar",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $json.message.content;\nconst marker = 'AGENDAR_CITA:';\nconst markerIndex = aiResponse.indexOf(marker);\n\nif (markerIndex === -1) {\n  return [{ json: { ...($json), parseError: true } }];\n}\n\nconst appointmentData = aiResponse.substring(markerIndex + marker.length);\nconst firstLineEnd = appointmentData.indexOf('\\n');\nconst codeLine = firstLineEnd !== -1 ? appointmentData.substring(0, firstLineEnd) : appointmentData;\nconst parts = codeLine.split('|');\nconst [patientName, service, dateTimeStr, phone] = parts.map(p => p.trim());\n\nlet startDateTime, endDateTime;\ntry {\n  if (dateTimeStr && dateTimeStr.match(/\\d{2}\\/\\d{2}\\/\\d{4}/)) {\n    const [datePart, timePart] = dateTimeStr.split(' ');\n    const [day, month, year] = datePart.split('/');\n    const [hour, minute] = (timePart || '10:00').split(':');\n    startDateTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));\n  } else {\n    startDateTime = new Date();\n    startDateTime.setDate(startDateTime.getDate() + 1);\n    startDateTime.setHours(10, 0, 0, 0);\n  }\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);\n} catch(e) {\n  startDateTime = new Date();\n  startDateTime.setDate(startDateTime.getDate() + 1);\n  startDateTime.setHours(10, 0, 0, 0);\n  endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);\n}\n\nreturn [{\n  json: {\n    ...($json),\n    appointmentData: {\n      patientName: patientName || 'Paciente',\n      service: service || 'Consulta',\n      phone: phone || '',\n      startDateTime: startDateTime.toISOString(),\n      endDateTime: endDateTime.toISOString(),\n      startDateTimeFormatted: startDateTime.toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }),\n      summary: `Cita — ${service} — ${patientName}`,\n      description: `Paciente: ${patientName}\\nServicio: ${service}\\nTeléfono: ${phone}\\nAgendado vía: Marcela (Agente Virtual)\\nClínica: KANO Odontología Integral`\n    }\n  }\n}];"
+      },
+      "id": "parse-appointment",
+      "name": "Parsear Datos de Cita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 260]
+    },
+    {
+      "parameters": {
+        "calendarId": "primary",
+        "start": "={{ $json.appointmentData.startDateTime }}",
+        "end": "={{ $json.appointmentData.endDateTime }}",
+        "additionalFields": {
+          "summary": "={{ $json.appointmentData.summary }}",
+          "description": "={{ $json.appointmentData.description }}",
+          "location": "Av. San Mateo 1225-36, Parques de Tesistán, 45200 Zapopan, Jalisco"
+        }
+      },
+      "id": "create-calendar-event",
+      "name": "Crear Cita en Google Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.1,
+      "position": [1780, 260],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "PONER_URL_GOOGLE_SHEETS",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Citas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha_agendamiento": "={{ new Date().toISOString() }}",
+            "paciente": "={{ $json.appointmentData.patientName }}",
+            "servicio": "={{ $json.appointmentData.service }}",
+            "fecha_cita": "={{ $json.appointmentData.startDateTimeFormatted }}",
+            "telefono": "={{ $json.appointmentData.phone }}",
+            "canal": "={{ $('Normalizar Mensaje').first().json.channel }}",
+            "calendar_event_id": "={{ $('Crear Cita en Google Calendar').first().json.id }}",
+            "estado": "Confirmada",
+            "recordatorio_enviado": "No"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-appointment",
+      "name": "Registrar Cita en Hoja Citas",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2000, 160],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $('Normalizar Mensaje').first().json;\nconst context = $('Construir Contexto').first().json.patientContext;\nconst aiResponse = $('Marcela — Agente IA').first().json.message.content;\n\nlet appointment = null;\ntry { appointment = $('Parsear Datos de Cita').first()?.json?.appointmentData; } catch(e) {}\n\nconst updatedHistory = [...context.conversationHistory, {\n  role: 'assistant',\n  content: aiResponse,\n  timestamp: new Date().toISOString()\n}].slice(-10);\n\nconst rowData = {\n  sender_id: msg.senderId,\n  name: context.name,\n  channel: msg.channel,\n  phone: msg.senderId,\n  conversation_history: JSON.stringify(updatedHistory),\n  last_message: msg.messageText,\n  last_message_date: new Date().toISOString(),\n  last_service: appointment?.service || context.lastService,\n  last_appointment: appointment?.startDateTimeFormatted || context.lastAppointment,\n  appointment_count: context.appointmentCount + (appointment ? 1 : 0),\n  preferences: context.preferences,\n  updated_at: new Date().toISOString()\n};\n\nreturn [{ json: { rowData, isNewPatient: context.isNewPatient, msg, appointment } }];"
+      },
+      "id": "prepare-memory-update",
+      "name": "Preparar Actualizacion de Memoria",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "PONER_URL_GOOGLE_SHEETS",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Conversaciones",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sender_id": "={{ $json.rowData.sender_id }}",
+            "name": "={{ $json.rowData.name }}",
+            "channel": "={{ $json.rowData.channel }}",
+            "phone": "={{ $json.rowData.phone }}",
+            "conversation_history": "={{ $json.rowData.conversation_history }}",
+            "last_message": "={{ $json.rowData.last_message }}",
+            "last_message_date": "={{ $json.rowData.last_message_date }}",
+            "last_service": "={{ $json.rowData.last_service }}",
+            "last_appointment": "={{ $json.rowData.last_appointment }}",
+            "appointment_count": "={{ $json.rowData.appointment_count }}",
+            "preferences": "={{ $json.rowData.preferences }}",
+            "updated_at": "={{ $json.rowData.updated_at }}"
+          },
+          "matchingColumns": ["sender_id"],
+          "schema": [
+            {"id": "sender_id", "displayName": "sender_id", "required": false, "defaultMatch": true, "type": "string", "display": true, "canBeUsedToMatch": true},
+            {"id": "name", "displayName": "name", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "channel", "displayName": "channel", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "phone", "displayName": "phone", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "conversation_history", "displayName": "conversation_history", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_message", "displayName": "last_message", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_message_date", "displayName": "last_message_date", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_service", "displayName": "last_service", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "last_appointment", "displayName": "last_appointment", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "appointment_count", "displayName": "appointment_count", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "preferences", "displayName": "preferences", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false},
+            {"id": "updated_at", "displayName": "updated_at", "required": false, "defaultMatch": false, "type": "string", "display": true, "canBeUsedToMatch": false}
+          ]
+        },
+        "options": {}
+      },
+      "id": "save-memory",
+      "name": "Guardar Memoria en Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [2220, 400],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Preparar Actualizacion de Memoria').first().json;\nconst appointment = ctx.appointment;\nconst senderName = ctx.msg.senderName;\n\nlet responseMessage = '';\n\nconst aiRaw = $('Marcela — Agente IA').first().json.message.content;\nconst markerIndex = aiRaw.indexOf('AGENDAR_CITA:');\n\nif (appointment && markerIndex !== -1) {\n  // Toma el texto que viene DESPUÉS de la línea del código\n  const afterCode = aiRaw.substring(markerIndex);\n  const newlineIndex = afterCode.indexOf('\\n');\n  const afterMarker = newlineIndex !== -1 ? afterCode.substring(newlineIndex + 1).trim() : '';\n  // Si no hay mensaje de confirmación después del código, construye uno\n  responseMessage = afterMarker || `Listo ${senderName} 😊 tu cita de ${appointment.service} quedó para el ${appointment.startDateTimeFormatted}.\\n\\n📍 KANO Odontología Integral\\nAv. San Mateo 1225-36, Parques de Tesistán, Zapopan\\n\\nTe esperamos. Si necesitas cambiar algo, escríbeme aquí.`;\n} else {\n  // Respuesta normal sin cita — limpia cualquier código residual\n  responseMessage = aiRaw.replace(/AGENDAR_CITA:[^\\n]*/g, '').trim();\n}\n\nreturn [{ json: { message: responseMessage, senderId: ctx.msg.senderId } }];"
+      },
+      "id": "prepare-response",
+      "name": "Preparar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2440, 400]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "whatsapp:+14155238886",
+        "to": "=whatsapp:{{ $json.senderId }}",
+        "message": "={{ $json.message }}"
+      },
+      "id": "respond-webhook",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [2660, 400],
+      "credentials": {
+        "twilioApi": {
+          "id": "PONER_TU_CREDENTIAL_ID",
+          "name": "Twilio account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Normalizar Mensaje", "type": "main", "index": 0 }]]
+    },
+    "Normalizar Mensaje": {
+      "main": [[{ "node": "Obtener Memoria del Paciente", "type": "main", "index": 0 }]]
+    },
+    "Obtener Memoria del Paciente": {
+      "main": [[{ "node": "Construir Contexto", "type": "main", "index": 0 }]]
+    },
+    "Construir Contexto": {
+      "main": [[{ "node": "Marcela — Agente IA", "type": "main", "index": 0 }]]
+    },
+    "Marcela — Agente IA": {
+      "main": [[{ "node": "Hay que agendar", "type": "main", "index": 0 }]]
+    },
+    "Hay que agendar": {
+      "main": [
+        [{ "node": "Parsear Datos de Cita", "type": "main", "index": 0 }],
+        [{ "node": "Preparar Actualizacion de Memoria", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parsear Datos de Cita": {
+      "main": [[{ "node": "Crear Cita en Google Calendar", "type": "main", "index": 0 }]]
+    },
+    "Crear Cita en Google Calendar": {
+      "main": [[{ "node": "Registrar Cita en Hoja Citas", "type": "main", "index": 0 }]]
+    },
+    "Registrar Cita en Hoja Citas": {
+      "main": [[{ "node": "Preparar Actualizacion de Memoria", "type": "main", "index": 0 }]]
+    },
+    "Preparar Actualizacion de Memoria": {
+      "main": [[{ "node": "Guardar Memoria en Sheets", "type": "main", "index": 0 }]]
+    },
+    "Guardar Memoria en Sheets": {
+      "main": [[{ "node": "Preparar Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Preparar Respuesta": {
+      "main": [[{ "node": "Responder Webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "tags": ["dental", "whatsapp", "agente-virtual", "kano", "marcela", "produccion"]
+}
