@@ -272,37 +272,64 @@
   // bot messages show a typing indicator first
 
   const CONVERSATIONS = [
-    // ── Scenario 1: Horarios ──
-    { type:'divider', text:'Escenario 1 — Consulta de horarios' },
-    { type:'user', text:'Hola, ¿a qué horas atienden?', delay:800 },
-    { type:'bot',  text:'¡Hola! 😊 Bienvenido a su consultorio dental.\n\nAtendemos:\n📅 Lunes a Viernes: 10am – 2pm y 4pm – 8pm\n📅 Sábados: 10am – 3pm\n\n¿Le gustaría agendar una cita?', delay:1000 },
-    { type:'user', text:'Sí, ¿tienen cita disponible este sábado?', delay:900 },
-    { type:'bot',  text:'¡Claro que sí! 🗓️ Tenemos espacio este sábado.\n\n¿A qué hora le viene mejor?\n— 10:00 am\n— 11:00 am\n— 12:00 pm', delay:1200 },
-    { type:'user', text:'A las 11 por favor', delay:700 },
-    { type:'bot',  text:'✅ ¡Perfecto! Su cita está confirmada para el *sábado a las 11:00 am*.\n\nLe enviaremos un recordatorio el día anterior. ¿Hay algo más en lo que le pueda ayudar?', delay:1000 },
 
-    // ── Scenario 2: Precios ──
+    // ── Escenario 1: Horarios y cita ──
+    { type:'divider', text:'Escenario 1 — Agendar cita' },
+    { type:'user', text:'Hola buenas, ¿a qué horas atienden?', delay:800 },
+    { type:'bot',  text:'Hola! Buenas tardes 😊 Atendemos lunes a viernes de 9am a 2pm y de 4 a 8pm, y sábados de 9am a 2pm. ¿Le puedo ayudar con algo más?', delay:900 },
+    { type:'user', text:'Sí, ¿tienen cita disponible mañana?', delay:800 },
+    { type:'bot',  text:'Sí, mañana tenemos espacio a las 10am, a las 12pm o en la tarde a las 5pm. ¿Cuál le funciona?', delay:900 },
+    { type:'user', text:'A las 10 de la mañana', delay:700 },
+    { type:'bot',  text:'Perfecto! 🗓️ ¿Me regala su nombre y para qué tratamiento vendría?', delay:800 },
+    { type:'user', text:'Sofía Torres, para una limpieza', delay:700 },
+    { type:'bot',  text:'Listo Sofía, queda apuntada mañana a las 10am para limpieza. Le mandamos recordatorio en la mañana. Nos vemos! 😊', delay:900 },
+
+    // ── Escenario 2: Precios ──
     { type:'divider', text:'Escenario 2 — Consulta de precios' },
-    { type:'user', text:'¿Cuánto cobran por una limpieza dental?', delay:800 },
-    { type:'bot',  text:'¡Buenas tardes! La limpieza dental profunda incluye:\n\n🦷 Eliminación de sarro\n🦷 Pulido dental\n🦷 Revisión general\n\nEl costo es de *$450 MXN*. Muchos de nuestros pacientes la combinan con blanqueamiento. ¿Le interesa saber el paquete?', delay:1200 },
-    { type:'user', text:'Sí, ¿cuánto saldría el paquete?', delay:700 },
-    { type:'bot',  text:'✨ El paquete *Limpieza + Blanqueamiento* queda en *$950 MXN* (ahorra $200).\n\nIncluye:\n✔ Limpieza completa\n✔ Blanqueamiento profesional\n✔ Asesoría de mantenimiento\n\n¿Le agendo una cita para esta semana?', delay:1200 },
+    { type:'user', text:'¿Cuánto cuesta una limpieza dental?', delay:800 },
+    { type:'bot',  text:'La limpieza sale en $500, incluye eliminación de sarro, pulido y revisión general. ¿Le agendo una cita?', delay:900 },
+    { type:'user', text:'¿Y si también quiero el blanqueamiento?', delay:700 },
+    { type:'bot',  text:'Si lo hace junto con la limpieza le sale en $1,100 los dos 🦷 Ahorra $200 vs hacerlos por separado. ¿Le interesa?', delay:900 },
+    { type:'user', text:'Sí! ¿Cuándo tienen espacio?', delay:600 },
+    { type:'bot',  text:'Esta semana tenemos martes y jueves por la tarde desde las 4pm. ¿Cuál día le queda mejor?', delay:800 },
 
-    // ── Scenario 3: Urgencia ──
+    // ── Escenario 3: Urgencia ──
     { type:'divider', text:'Escenario 3 — Urgencia dental' },
-    { type:'user', text:'Tengo mucho dolor de muela desde ayer, ¿pueden verme hoy?', delay:800 },
-    { type:'bot',  text:'😟 Lamentamos que esté en dolor. Sí atendemos urgencias.\n\n¿Podría indicarme:\n1️⃣ ¿El dolor es constante o por momentos?\n2️⃣ ¿Tiene inflamación en la cara o encía?\n\nCon eso le digo los tiempos de atención disponibles.', delay:1200 },
-    { type:'user', text:'Es constante y sí tengo un poco de inflamación', delay:700 },
-    { type:'bot',  text:'⚠️ Entendido. Con esos síntomas le recomendamos venir hoy.\n\nTenemos espacio a las *5:00 pm* o *6:30 pm*.\n\n¿Cuál le funciona? Le confirmo con el doctor de inmediato.', delay:1100 },
-    { type:'user', text:'A las 5 pm', delay:600 },
-    { type:'bot',  text:'✅ *Cita de urgencia confirmada — hoy 5:00 pm*\n\nDirección: Av. San Mateo 1225-36, Parques de Tesistán, Zapopan\n\nTome un analgésico mientras tanto si lo tiene disponible. ¡Le esperamos! 🦷', delay:1000 },
+    { type:'user', text:'Traigo un dolor de muela muy fuerte desde ayer, ¿me pueden ver hoy?', delay:800 },
+    { type:'bot',  text:'Ay qué pena 😟 Sí atendemos urgencias. ¿El dolor es constante o viene y va? ¿Tiene algo de inflamación?', delay:900 },
+    { type:'user', text:'Es constante y sí, tengo la mejilla un poco inflamada', delay:700 },
+    { type:'bot',  text:'Ok, con eso urge que lo vea el doctor hoy. Tenemos espacio a las 5:30pm con el Dr. Herrera. ¿Le funciona esa hora?', delay:900 },
+    { type:'user', text:'Sí, perfecto', delay:600 },
+    { type:'bot',  text:'Listo! A las 5:30pm lo esperamos. Tome un ibuprofeno mientras tanto si no tiene alergia. ¿Me confirma su nombre?', delay:800 },
+    { type:'user', text:'Carlos Mendoza', delay:600 },
+    { type:'bot',  text:'Apuntado Carlos ✅ Lo vemos hoy a las 5:30pm. Cualquier cosa me avisa!', delay:700 },
 
-    // ── Scenario 4: Implantes ──
-    { type:'divider', text:'Escenario 4 — Información de servicios' },
-    { type:'user', text:'¿Hacen implantes dentales?', delay:800 },
-    { type:'bot',  text:'¡Sí! Somos especialistas en implantes dentales. 🦷\n\nOfrecemos:\n✔ Implantes de titanio de alta calidad\n✔ Evaluación gratuita de viabilidad\n✔ Planes de pago disponibles\n\n¿Desea que le agende una *valoración sin costo* con el especialista?', delay:1200 },
-    { type:'user', text:'¿Tienen planes de pago?', delay:700 },
-    { type:'bot',  text:'💳 ¡Sí! Manejamos varias opciones:\n\n— 3 MSI con tarjeta\n— 6 MSI con tarjeta\n— Plan de pago personalizado sin tarjeta\n\nLe explicamos todo a detalle en su valoración. ¿Le agendo esta semana?', delay:1200 },
+    // ── Escenario 4: Doctores ──
+    { type:'divider', text:'Escenario 4 — Quién me atiende' },
+    { type:'user', text:'¿Quién me va a atender si voy? ¿Tienen especialistas?', delay:800 },
+    { type:'bot',  text:'Sí, contamos con tres doctores según lo que necesite:\n\n👩‍⚕️ *Dra. Sofía Ramírez* — Odontología general y limpiezas\n👨‍⚕️ *Dr. Alejandro Torres* — Ortodoncia y brackets\n👩‍⚕️ *Dra. Valeria Mendoza* — Implantes y estética dental\n\n¿Ya sabe qué tratamiento necesita?', delay:1000 },
+    { type:'user', text:'Quiero brackets, ¿cuánto salen?', delay:700 },
+    { type:'bot',  text:'Los brackets con el Dr. Torres arrancan desde $8,500 e incluyen la valoración inicial sin costo. Manejamos mensualidades. ¿Le agendo la valoración?', delay:900 },
+    { type:'user', text:'Sí, ¿cuándo puede ser?', delay:600 },
+    { type:'bot',  text:'El Dr. Torres tiene espacio este viernes a las 11am o el lunes a las 4pm. ¿Cuál prefiere?', delay:800 },
+
+    // ── Escenario 5: Implantes ──
+    { type:'divider', text:'Escenario 5 — Implantes dentales' },
+    { type:'user', text:'Se me cayó un diente, ¿hacen implantes?', delay:800 },
+    { type:'bot',  text:'Sí, la Dra. Mendoza es especialista en implantes 🦷 Lo primero sería una valoración sin costo para ver si es buen candidato. ¿Le agendo?', delay:900 },
+    { type:'user', text:'¿Cuánto cuesta el implante?', delay:700 },
+    { type:'bot',  text:'El implante de titanio completo va desde $12,000. Manejamos 3 y 6 meses sin intereses con tarjeta, y también plan de pagos sin tarjeta si prefiere.', delay:900 },
+    { type:'user', text:'¿Y cuánto tiempo tarda el proceso?', delay:700 },
+    { type:'bot',  text:'El proceso completo es de 3 a 4 meses en total. Pero desde el primer día sale con un diente provisional para que no ande sin nada. La Dra. le explica todo en la valoración. ¿Le agendo esta semana?', delay:1000 },
+
+    // ── Escenario 6: Fuera de horario ──
+    { type:'divider', text:'Escenario 6 — Mensaje a las 11pm' },
+    { type:'user', text:'Hola, quiero información sobre ortodoncia invisible', delay:800 },
+    { type:'bot',  text:'Hola! Claro que sí 😊 Manejamos alineadores invisibles tipo Invisalign con el Dr. Torres. El tratamiento va desde $18,000 e incluye valoración inicial sin costo.\n\n¿Le agendo una cita para que el doctor lo revise y le dé un plan personalizado?', delay:1000 },
+    { type:'user', text:'Sí, ¿mañana tienen algo?', delay:700 },
+    { type:'bot',  text:'Mañana el Dr. Torres tiene espacio a las 10am y a las 6pm. ¿Cuál le funciona mejor?', delay:800 },
+    { type:'user', text:'A las 6pm', delay:600 },
+    { type:'bot',  text:'Perfecto! 🗓️ Cita mañana a las 6pm con el Dr. Torres para valoración de ortodoncia invisible. ¿Me regala su nombre?', delay:800 },
   ];
 
   // ─── Engine ────────────────────────────────────────────────────────
