@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mensajes Prospectos — DLM Solutions</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px 16px 60px;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 0 28px;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 800; color: #fff; }
+    header p { font-size: 0.78rem; color: #64748b; margin-top: 5px; }
+
+    /* Datos del prospecto */
+    .datos-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 18px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+    .datos-card h2 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #3b82f6;
+      margin-bottom: 14px;
+    }
+    .campos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .campo label {
+      display: block;
+      font-size: 0.7rem;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .campo input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+      outline: none;
+    }
+    .campo input:focus { border-color: #3b82f6; }
+    .campo input::placeholder { color: #475569; }
+
+    .btn-personalizar {
+      width: 100%;
+      margin-top: 14px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-personalizar:hover { background: #2563eb; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .tab.active, .tab:hover {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+    }
+
+    /* Secciones */
+    .seccion {
+      display: none;
+      max-width: 600px;
+      margin: 0 auto;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .seccion.active { display: flex; }
+
+    /* Tarjeta de mensaje */
+    .msg-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .msg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid #334155;
+    }
+    .msg-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .msg-label.verde { color: #22c55e; }
+    .msg-label.azul { color: #3b82f6; }
+    .msg-label.amarillo { color: #eab308; }
+    .msg-label.gris { color: #94a3b8; }
+
+    .btn-copy {
+      background: #334155;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-copy:hover { background: #22c55e; color: #fff; }
+    .btn-copy.copied { background: #22c55e; color: #fff; }
+
+    .msg-body textarea {
+      width: 100%;
+      background: #0f172a;
+      border: none;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 110px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .dia-badge {
+      font-size: 0.68rem;
+      background: #1e3a5f;
+      color: #60a5fa;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-left: 8px;
+    }
+
+    /* Bloque de respuesta */
+    .respuesta-card {
+      background: linear-gradient(135deg, #14532d22, #14532d44);
+      border: 1px solid #166534;
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .respuesta-card h3 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #22c55e;
+      margin-bottom: 12px;
+    }
+    .respuesta-card textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #166534;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    .respuesta-card textarea:focus { border-color: #22c55e; }
+    .btn-copy-resp {
+      background: #166534;
+      border: none;
+      border-radius: 7px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: #86efac;
+      cursor: pointer;
+      transition: all 0.15s;
+      float: right;
+    }
+    .btn-copy-resp:hover { background: #22c55e; color: #fff; }
+
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.7rem;
+      color: #334155;
+    }
+
+    .clearfix::after { content: ''; display: block; clear: both; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>💬 Mensajes Prospectos</h1>
+  <p>DLM Solutions — Edita, personaliza y copia</p>
+</header>
+
+<!-- Datos del prospecto -->
+<div class="datos-card">
+  <h2>✏️ Datos del prospecto</h2>
+  <div class="campos">
+    <div class="campo">
+      <label>Nombre clínica</label>
+      <input type="text" id="clinica" placeholder="Ej. KANO Odontología" />
+    </div>
+    <div class="campo">
+      <label>Nombre doctor/a</label>
+      <input type="text" id="doctor" placeholder="Ej. Dr. Cano" />
+    </div>
+    <div class="campo">
+      <label># Reseñas Google</label>
+      <input type="text" id="resenas" placeholder="Ej. 94" />
+    </div>
+    <div class="campo">
+      <label>Calificación ⭐</label>
+      <input type="text" id="estrellas" placeholder="Ej. 4.8" />
+    </div>
+  </div>
+  <button class="btn-personalizar" onclick="personalizar()">⚡ Personalizar mensajes</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('sinweb', this)">❌ Sin página web</div>
+  <div class="tab" onclick="showTab('sinchat', this)">💬 Sin chatbot</div>
+  <div class="tab" onclick="showTab('sinambos', this)">🚨 Sin web ni chatbot</div>
+</div>
+
+<!-- ==================== SIN WEB ==================== -->
+<div class="seccion active" id="sinweb">
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label verde">Mensaje 1 — Apertura <span class="dia-badge">Día 1</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sw1')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sw1">Buenas tardes, ¿es [CLINICA]?
+
+Le escribo porque busqué su consultorio en Google y no encontré página web — con [RESENAS] reseñas y [ESTRELLAS] estrellas que tienen, están perdiendo pacientes que los buscan en internet y no los encuentran.
+
+Les hice una demo de cómo se vería su página web. ¿Gusta que se la mande?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label azul">Follow-up 1 <span class="dia-badge">Día 3</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sw2')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sw2">Hola [DOCTOR], solo quería saber si vio mi mensaje anterior.
+
+La demo que hice para [CLINICA] la tengo lista — son 2 minutos verla y creo que le va a interesar. ¿Se la mando?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label amarillo">Follow-up 2 <span class="dia-badge">Día 6</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sw3')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sw3">[DOCTOR], última vez que le escribo.
+
+¿Le interesa ver cómo quedaría su página web, o ahorita no es buen momento?
+
+La demo sigue lista cuando quiera.</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label gris">Friendly reminder <span class="dia-badge">Día 10</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sw4')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sw4">Sin problema si no es el momento.
+
+La demo de [CLINICA] la guardo por si en algún momento quiere verla.
+
+¡Buen día, saludos!</textarea>
+    </div>
+  </div>
+
+  <div class="respuesta-card">
+    <h3>✅ Cuando contestan "sí, mándamela"</h3>
+    <textarea id="sw_resp">Con gusto. Aquí está la demo de cómo quedaría su página:
+diegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/
+
+Este es un ejemplo — la de [CLINICA] la haríamos con sus colores, servicios y fotos. ¿Tiene 15 minutos esta semana para que le explique cómo funciona?</textarea>
+    <div class="clearfix">
+      <button class="btn-copy-resp" onclick="copiar(this, 'sw_resp')">Copiar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== SIN CHATBOT ==================== -->
+<div class="seccion" id="sinchat">
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label verde">Mensaje 1 — Apertura <span class="dia-badge">Día 1</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sc1')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sc1">Buenas tardes, ¿es [CLINICA]?
+
+Vi que tienen [RESENAS] reseñas en Google — eso significa mucho flujo de pacientes. Los mensajes de WhatsApp que quedan sin respuesta mientras atienden se convierten en pacientes que llaman al siguiente.
+
+Les hice una demo de cómo funcionaría un asistente de WhatsApp para su consultorio. ¿Gusta que se la mande?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label azul">Follow-up 1 <span class="dia-badge">Día 3</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sc2')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sc2">Hola [DOCTOR], ¿vio mi mensaje?
+
+La demo del asistente para [CLINICA] está lista — responde pacientes 24/7 aunque estén con alguien en el consultorio. ¿Se la mando?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label amarillo">Follow-up 2 <span class="dia-badge">Día 6</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sc3')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sc3">[DOCTOR], última vez que le escribo.
+
+¿Le interesa ver cómo funciona el asistente de WhatsApp, o ahorita no es buen momento?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label gris">Friendly reminder <span class="dia-badge">Día 10</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sc4')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sc4">Sin problema si no es el momento.
+
+Por si acaso, cuando quiera ver la demo aquí estoy.
+
+¡Saludos!</textarea>
+    </div>
+  </div>
+
+  <div class="respuesta-card">
+    <h3>✅ Cuando contestan "sí, mándamela"</h3>
+    <textarea id="sc_resp">Con gusto. Aquí está la demo:
+diegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/
+
+Así respondería el asistente a los pacientes de [CLINICA], a cualquier hora. ¿Tiene 15 minutos esta semana para que lo vea en vivo desde su celular?</textarea>
+    <div class="clearfix">
+      <button class="btn-copy-resp" onclick="copiar(this, 'sc_resp')">Copiar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== SIN WEB NI CHATBOT ==================== -->
+<div class="seccion" id="sinambos">
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label verde">Mensaje 1 — Apertura <span class="dia-badge">Día 1</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sa1')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sa1">Buenas tardes, ¿es [CLINICA]?
+
+Busqué su consultorio en Google y vi que no tienen página web — con [RESENAS] reseñas y [ESTRELLAS] estrellas, están perdiendo dos tipos de pacientes: los que los buscan en Google y no los encuentran, y los que les mandan WhatsApp y no reciben respuesta rápido.
+
+Les hice una demo de cómo quedaría su página web con asistente de WhatsApp incluido. ¿Gusta que se la mande?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label azul">Follow-up 1 <span class="dia-badge">Día 3</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sa2')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sa2">Hola [DOCTOR], ¿vio mi mensaje?
+
+Tengo lista la demo para [CLINICA] — página web profesional y asistente de WhatsApp que responde solo. Son 2 minutos verla. ¿Se la mando?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label amarillo">Follow-up 2 <span class="dia-badge">Día 6</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sa3')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sa3">[DOCTOR], última vez que le escribo.
+
+¿Le interesa ver la demo de página web + asistente de WhatsApp para [CLINICA], o ahorita no es buen momento?</textarea>
+    </div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <span class="msg-label gris">Friendly reminder <span class="dia-badge">Día 10</span></span>
+      <button class="btn-copy" onclick="copiar(this, 'sa4')">Copiar</button>
+    </div>
+    <div class="msg-body">
+      <textarea id="sa4">Sin problema si no es el momento.
+
+La demo de [CLINICA] sigue aquí cuando quieran verla.
+
+¡Saludos, buen día!</textarea>
+    </div>
+  </div>
+
+  <div class="respuesta-card">
+    <h3>✅ Cuando contestan "sí, mándamela"</h3>
+    <textarea id="sa_resp">Con gusto. Aquí están las dos demos:
+
+🌐 Página web:
+diegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/
+
+💬 Asistente de WhatsApp:
+diegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/
+
+Las dos juntas en un solo paquete salen más baratas que separadas. ¿Tiene 15 minutos esta semana para que le explique cómo funciona todo?</textarea>
+    <div class="clearfix">
+      <button class="btn-copy-resp" onclick="copiar(this, 'sa_resp')">Copiar</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">DLM Solutions · Solo para uso interno · Diego Landeros</div>
+
+<script>
+  const defaults = {
+    sw1: `Buenas tardes, ¿es [CLINICA]?\n\nLe escribo porque busqué su consultorio en Google y no encontré página web — con [RESENAS] reseñas y [ESTRELLAS] estrellas que tienen, están perdiendo pacientes que los buscan en internet y no los encuentran.\n\nLes hice una demo de cómo se vería su página web. ¿Gusta que se la mande?`,
+    sw2: `Hola [DOCTOR], solo quería saber si vio mi mensaje anterior.\n\nLa demo que hice para [CLINICA] la tengo lista — son 2 minutos verla y creo que le va a interesar. ¿Se la mando?`,
+    sw3: `[DOCTOR], última vez que le escribo.\n\n¿Le interesa ver cómo quedaría su página web, o ahorita no es buen momento?\n\nLa demo sigue lista cuando quiera.`,
+    sw4: `Sin problema si no es el momento.\n\nLa demo de [CLINICA] la guardo por si en algún momento quiere verla.\n\n¡Buen día, saludos!`,
+    sw_resp: `Con gusto. Aquí está la demo de cómo quedaría su página:\ndiegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/\n\nEste es un ejemplo — la de [CLINICA] la haríamos con sus colores, servicios y fotos. ¿Tiene 15 minutos esta semana para que le explique cómo funciona?`,
+    sc1: `Buenas tardes, ¿es [CLINICA]?\n\nVi que tienen [RESENAS] reseñas en Google — eso significa mucho flujo de pacientes. Los mensajes de WhatsApp que quedan sin respuesta mientras atienden se convierten en pacientes que llaman al siguiente.\n\nLes hice una demo de cómo funcionaría un asistente de WhatsApp para su consultorio. ¿Gusta que se la mande?`,
+    sc2: `Hola [DOCTOR], ¿vio mi mensaje?\n\nLa demo del asistente para [CLINICA] está lista — responde pacientes 24/7 aunque estén con alguien en el consultorio. ¿Se la mando?`,
+    sc3: `[DOCTOR], última vez que le escribo.\n\n¿Le interesa ver cómo funciona el asistente de WhatsApp, o ahorita no es buen momento?`,
+    sc4: `Sin problema si no es el momento.\n\nPor si acaso, cuando quiera ver la demo aquí estoy.\n\n¡Saludos!`,
+    sc_resp: `Con gusto. Aquí está la demo:\ndiegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/\n\nAsí respondería el asistente a los pacientes de [CLINICA], a cualquier hora. ¿Tiene 15 minutos esta semana para que lo vea en vivo desde su celular?`,
+    sa1: `Buenas tardes, ¿es [CLINICA]?\n\nBusqué su consultorio en Google y vi que no tienen página web — con [RESENAS] reseñas y [ESTRELLAS] estrellas, están perdiendo dos tipos de pacientes: los que los buscan en Google y no los encuentran, y los que les mandan WhatsApp y no reciben respuesta rápido.\n\nLes hice una demo de cómo quedaría su página web con asistente de WhatsApp incluido. ¿Gusta que se la mande?`,
+    sa2: `Hola [DOCTOR], ¿vio mi mensaje?\n\nTengo lista la demo para [CLINICA] — página web profesional y asistente de WhatsApp que responde solo. Son 2 minutos verla. ¿Se la mando?`,
+    sa3: `[DOCTOR], última vez que le escribo.\n\n¿Le interesa ver la demo de página web + asistente de WhatsApp para [CLINICA], o ahorita no es buen momento?`,
+    sa4: `Sin problema si no es el momento.\n\nLa demo de [CLINICA] sigue aquí cuando quieran verla.\n\n¡Saludos, buen día!`,
+    sa_resp: `Con gusto. Aquí están las dos demos:\n\n🌐 Página web:\ndiegolanderos12.github.io/agente-dental-guadalajara-/dlm-solutions/\n\n💬 Asistente de WhatsApp:\ndiegolanderos12.github.io/agente-dental-guadalajara-/demo-kano/\n\nLas dos juntas en un solo paquete salen más baratas que separadas. ¿Tiene 15 minutos esta semana para que le explique cómo funciona todo?`
+  };
+
+  function personalizar() {
+    const clinica   = document.getElementById('clinica').value.trim()   || '[CLINICA]';
+    const doctor    = document.getElementById('doctor').value.trim()    || '[DOCTOR]';
+    const resenas   = document.getElementById('resenas').value.trim()   || '[RESENAS]';
+    const estrellas = document.getElementById('estrellas').value.trim() || '[ESTRELLAS]';
+
+    Object.keys(defaults).forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      let txt = defaults[id];
+      txt = txt.replaceAll('[CLINICA]',   clinica);
+      txt = txt.replaceAll('[DOCTOR]',    doctor);
+      txt = txt.replaceAll('[RESENAS]',   resenas);
+      txt = txt.replaceAll('[ESTRELLAS]', estrellas);
+      el.value = txt;
+    });
+  }
+
+  function copiar(btn, id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.value).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copiar';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function showTab(id, el) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
