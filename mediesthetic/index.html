@@ -246,7 +246,14 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.1);
       height: 380px;
     }
-    .map-container iframe { width: 100%; height: 100%; border: none; }
+    .map-container iframe { width: 100%; height: calc(100% - 44px); border: none; display: block; }
+    .map-link {
+      display: block; text-align: center; padding: 10px;
+      background: var(--dark); color: #fff; font-size: 0.82rem;
+      letter-spacing: 1px; text-decoration: none;
+      transition: background .3s;
+    }
+    .map-link:hover { background: var(--rose); }
 
     /* ── RATING BADGE ── */
     .rating-block {
@@ -494,9 +501,10 @@
 
     <div class="map-container">
       <iframe
-        src="https://maps.google.com/maps?q=Av.+Camino+a+Bosque+de+San+Isidro+1847,+Bosques+del+Centinela,+45187+Zapopan,+Jalisco,+Mexico&output=embed&hl=es&z=16"
-        allowfullscreen="" loading="lazy">
+        src="https://www.openstreetmap.org/export/embed.html?bbox=-103.4300%2C20.7100%2C-103.3900%2C20.7400&amp;layer=mapnik&amp;marker=20.7240%2C-103.4131"
+        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer">
       </iframe>
+      <a href="https://maps.google.com/?q=Av+Camino+a+Bosque+de+San+Isidro+1847+Bosques+del+Centinela+Zapopan+Jalisco" target="_blank" class="map-link">📍 Abrir en Google Maps</a>
     </div>
   </div>
 </section>
